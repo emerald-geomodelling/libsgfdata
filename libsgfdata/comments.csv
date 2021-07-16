@@ -1,0 +1,68 @@
+code,name,text,remark,group
+-1,No comment,,,
+0,Previous code error,,,General codes
+1,Start level following code,,,General codes
+2,Method replacement,2,,General codes
+3,Additional information,3,,General codes
+10,Stop earlier test,10,,Remark codes
+11,Extended interruption,X,,Remark codes
+12,Without turning,Wt,,Remark codes
+13,Self-sinking weight 0,0,,Remark codes
+14,Self-sinking weight 0.64,0.64,,Remark codes
+15,No registration,Nr,,Remark codes
+16,Impact,Impact,,Remark codes
+17,Turning,Turning,,Remark codes
+18,Jointing,Joint,,Remark codes
+19,Flushing,Flushing,,Remark codes
+20,Impact begin,Impact beginning,,Remark codes
+21,Impact end,Impact end,,Remark codes
+30,Fill,Mg,,Classification codes
+31,Dry crust,LCldc,,Classification codes
+32,Non-cohesive soil,Ncs,,Classification codes
+33,Inorganic cohesion soil,Coh,,Classification codes
+34,Organic soil,Org,Does not match SGF’s designation system. Should be changed in the designation system 13/12/2012,Classification codes
+36,Soil type not determined,Not determined,,Classification codes
+37,Clay and other cohesive soils,Cl,,Classification codes
+38,Sandy soil,Sa,,Classification codes
+39,Gravely soil,Gr,,Classification codes
+40,Stoney soil and blocks,"Bo, Co",,Classification codes
+41,Drilled block or stone,"Bo, Co",,Classification codes
+42,No noticeable cracks,+,,Classification codes
+43,Fissured rock,0,,Classification codes
+44,Very fissured rock,-,,Classification codes
+45,Crushed rock,--,,Classification codes
+46,No classification,Ib,,Classification codes
+47,Dry,Dry,,Hydrological determination
+48,Flows,Flows,,Hydrological determination
+49,Replace,Replace,,Hydrological determination
+50,Terminated,Terminated,,Hydrological determination
+51,Function control OK,OK,,Hydrological determination
+52,Function control not OK,not OK,,Hydrological determination
+53,Obstacle,Hindrance,,Hydrological determination
+54,Flushed,Flushed,,Hydrological determination
+55,Frozen,Frozen,,Hydrological determination
+56,Damaged,Damaged,,Hydrological determination
+60,Curved rod,,,Free codes (example)
+61,Rod broken,,,Free codes (example)
+62,Timber or other obstruction,,,Free codes (example)
+63,Probable groundwater table,,,Free codes (example)
+64,Time designation,,,Free codes (example)
+65,Current tip depth,,,Free codes (example)
+70,Start rotation,V1,,Free codes (example)
+71,Terminate rotation,V2,,Free codes (example)
+80,Rock level,Rock,"Rock or block begins. This code can be entered multiple times. If one drills through a block, enter code 41, and when drilling in rock is completed, enter the stop code 95.",Free codes (example)
+81,Ground surface,GS,,Free codes (example)
+82,Silt,Si,,Free codes (example)
+83,Peat,P,,Free codes (example)
+84,Moraine soil,Ti,,Free codes (example)
+85,Clay till,ClTi,,Free codes (example)
+90,Interrupted without stop,Interrupted without stop,,Stop codes
+91,Cannot drive further,Cannot drive further,,Stop codes
+92,Stop against stone or block,Stop against stone or block,,Stop codes
+93,"Stop against stone, block or rock","Stop against stone, block or rock",,Stop codes
+94,Stop against presumed rock,Stop against presumed rock,,Stop codes
+95,(Soil-rock sounding) interrupted,(Soil-rock sounding) interrupted,,Stop codes
+96,Predetermined depth,,,Stop codes
+97,Max. capacity,,,Stop codes
+98,Max. inclination,,,Stop codes
+99,Equipment damaged,,,Stop codes

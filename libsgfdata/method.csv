@@ -1,0 +1,67 @@
+code,name,format,unit,remark
+AN,Start depth,Numeral,m,metres under pipe top
+Ant-f,Screened/unscreened,,,
+Ant-typ,Antenna type,,,e.g. unshielded 50 MHz
+AO,End depth,Numeral,m,
+cc-givare,c/c sensor,,,Distance between geophones
+cc-mätn,c/c measurement points,,,Distance between measurement points
+deltaDjup,Measurement range,,,
+DynTyp,Type of impact cushion,,,loose or solid
+Elektrodkonfig,Electrode configuration,,,"e.g. Wenner, dipol-dipol"
+Elektrodtyp,Electrode type,,,e.g. steel
+Energi,Energy source,,,"Dynamite, sledgehammer, ..."
+f,Sensor frequency,,,e.g. 9.8 kHz
+FiLiq,Fluid in filter,,Text,
+FiPos,Filter location,Numeral,"value 1,2 or 3",
+FiTyp,Filter type,Text,,
+Geof-f,Geophone type,,,"e.g. 10 Hz, vertical"
+Geof-riktn,Frequency and orientation,,,
+Grad,Gradiometer,,,
+Gummi,Use of damper,,,Yes/No
+Hammare,Hammers,Text,,
+HI,Start time,,,
+HL,Section,,,
+HXslut,X endpoint,,,
+HXstart,X starting point,,,
+HYslut,Y endpoint,,,
+HYstart,Y start point,,,
+HZ,Level tube top,,,
+HZslut,Z end point,,,
+HZstart,Z start point,,,
+IA,Main measurement direction,Numeral,degrees,
+IE,Tip net area factor,,,
+IF,Mantle net area factor,,,
+IG,Application class,Numeral,1-4,Available in 4 different classes (1-4)
+Instr,Geophysical instrument,,,Instrument type and manufacturer
+KonTyp,Type of cone,Text,,loose or solid
+KQ,Constant,Numeral,,
+KronD,Diameter drill bit,Numeral,mm,
+KronTyp Type of drill bit,Numeral,mm,,
+MemTyp,Membrane type,Text,,
+Metod,Method,Text,,
+Off,Offset,Numeral,,
+PelMetod,Method,Text,,
+Pman,"Zero reading, manometer",Numeral,,
+PmtBorr,Drilling procedure,Text,,
+PmtFI,"Diameter, probe",Numeral,mm,
+PmtTyp,Type of Pressuremeter,Text,,
+Pos-typ,Method for positioning,,,"Hand-GPS, RTK-GPS, Totalstation..."
+ProvD,The sampler’s diameter,Numeral,mm,
+ProvK,Sampling category,Text,,"Text A, B or C"
+ProvL,The sampler’s length,Numeral,mm,
+ProvNed,Penetration method,Text,,"Static, dynamic, rotation and etc."
+ProvTyp,Type of sampler*,Text,,Text
+Res-instr,Type of equipment/instrument,,,"Manufacturer, model: e.g. ABEM Terrameter LS"
+Rod,Rods,Text,,Type and diameter
+RorL,Tube length,Numeral,m,
+Slits,Slotted tube used,Text,,Yes/No
+Spets,Type of tip,Text,,Type and diameter
+SpolM,Flush medium,Text,,
+ST,System stiffness,Numeral,,
+Transm,Transmitter,Text,Text,e.g. Murmansk
+Transm-type,Fixed / portable,Text,Text,
+Uppstick,Length above ground level,,,
+Utvärdprog,Evaluation software,,,e.g. Rayfract
+VC,Original volume Measurement cell,,,
+VingD,Size of vane,Numeral,mm/mm,Diameter/Thickness
+VS,Size of vane,Numeral,mm/mm,Diameter/height

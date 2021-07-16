@@ -1,0 +1,47 @@
+code,name,reference,group
+101,"Weight sounding test, manual","SIS-CEN ISO/TS 22476-10:2005 or “Method description for weight sounding test”, SGF report 3:99 1",European field methods included in SGF’s format standard
+102,"Weight sounding test, mechanical","SIS-CEN ISO/TS 22476-10:2005 or “Method description for weight sounding”, SGF report 3:99 1",European field methods included in SGF’s format standard
+107A,"Cone penetration test , CPTU (with pore pressure measurement)",SS EN ISO 22476-1,European field methods included in SGF’s format standard
+107B,Cone penetration test CPT (without pore pressure measurement),SS EN ISO 22476-1,European field methods included in SGF’s format standard
+108A,"Dynamic probing, former Swedish HfA",SS EN ISO 22476-2:2005/A1:2011,European field methods included in SGF’s format standard
+108B,Dynamic probing Light,SS EN ISO 22476-2:2005/A1:2011,European field methods included in SGF’s format standard
+108C,Dynamic probing Medium,SS EN ISO 22476-2:2005/A1:2011,European field methods included in SGF’s format standard
+108D,Dynamic probing Heavy,SS EN ISO 22476-2:2005/A1:2011,European field methods included in SGF’s format standard
+108E,Dynamic probing Super-heavy,SS EN ISO 22476-2:2005/A1:2011,European field methods included in SGF’s format standard
+114,Flat dilatometer test,"SIS-CEN ISO/TS 22476-11:2005 or “Recommended standard for dilatometer testing”, SGF report 1:95 1",European field methods included in SGF’s format standard
+116,Pressuremeter test,SS EN ISO 22476-8,European field methods included in SGF’s format standard
+121A,Standard penetration test,SS EN ISO 22476-3:2005/A1:2011,European field methods included in SGF’s format standard
+121B,Standard penetration test,SS EN ISO 22476-3:2005/A1:2011,European field methods included in SGF’s format standard
+130,Undisturbed sampling,SS EN ISO 22475-1:2006,European field methods included in SGF’s format standard
+131,Disturbed sampling,SS EN ISO 22475-1:2006,European field methods included in SGF’s format standard
+132,Core sampling,SS EN ISO 22475-1:2006,European field methods included in SGF’s format standard
+3,Pressure soundingQ,"Field Manual, SGF Report 1:2013",Traditional Swedish and Nordic field methods that are not covered by a European standard
+10,Impact soundingQ,"Field Manual, SGF Report 1:2013",Traditional Swedish and Nordic field methods that are not covered by a European standard
+11,Light soundingQ,"Field Manual, SGF Report 1:2013",Traditional Swedish and Nordic field methods that are not covered by a European standard
+12,Soil-rock sounding 1,"“Method description for soil-rock sounding”, SGF report 4:2012",Traditional Swedish and Nordic field methods that are not covered by a European standard
+13,Field vane test,"“Recommended standard for vane testing”, SGF report 1:93",Traditional Swedish and Nordic field methods that are not covered by a European standard
+23,Rotary pressure sounding,"Guide for performance of rotary pressure sounding. (1982, Rev. 1 1989)",Traditional Swedish and Nordic field methods that are not covered by a European standard
+24,Norwegian total sounding,Guide for the performance of total sounding. (1994),Traditional Swedish and Nordic field methods that are not covered by a European standard
+39,Finnish HK sounding,-,Traditional Swedish and Nordic field methods that are not covered by a European standard
+41,Soil-rock sounding 2,"“Method description for soil-rock sounding”, SGF report 4:2012",Traditional Swedish and Nordic field methods that are not covered by a European standard
+42,Soil-rock sounding 3,"“Method description for soil-rock sounding”, SGF report 4:2012",Traditional Swedish and Nordic field methods that are not covered by a European standard
+43,Percussion drilling (MWD),"“Method description for soil-rock sounding”, SGF report 4:2012",Traditional Swedish and Nordic field methods that are not covered by a European standard
+73,Soil-rock-Total sounding,“Method description for soil-rock sounding” SGF report 4:2012,Traditional Swedish and Nordic field methods that are not covered by a European standard
+82,"Column penetration testing, measurement in rig","Swedish Deep Stabilization Research Centre, Report No. 17, Appendix C, Section 1, and with discrepancies and clarifications in the Swedish Transport Administration’s TK Geo 11, Appendix B",Traditional Swedish and Nordic field methods that are not covered by a European standard
+83,"Column penetration testing, measurement in tip","Swedish Deep Stabilization Research Centre, Report No. 17, Appendix C, Section 1, and with discrepancies and clarifications in the Swedish Transport Administration’s TK Geo 11, Appendix B",Traditional Swedish and Nordic field methods that are not covered by a European standard
+201,Inclinometer measurement,"Field manual, SGF report 1:2013",Geotechnical field measurement methods
+202,Bellow hose settlement measurement,"Field manual, SGF report 1:2013",Geotechnical field measurement methods
+203,Hydrostatic profiler,"Field manual, SGF report 1:2013",Geotechnical field measurement methods
+204,Gauge measurement,"Field manual, SGF report 1:2013",Geotechnical field measurement methods
+205,Magnetic settlement gauge,"Field manual, SGF report 1:2013",Geotechnical field measurement methods
+218,Pore pressure measurement,SS EN ISO 22475-1:2006,Geotechnical field measurement methods
+219,"GW in open tube, casing",SS EN ISO 22475-1:2006,Geotechnical field measurement methods
+220,GW in tube with filter tip,SS EN ISO 22475-1:2006,Geotechnical field measurement methods
+301,Refraction seismics,SGF Method sheet Seismics 01/01/2006,Geotechnical field measurement methods
+302,Surface wave seismics,SGF Method sheet Surface wave seismics 01/01/2006,Geotechnical field measurement methods
+303,Resistivity,SGF Method sheet Resistivity 01/01/2006,Geotechnical field measurement methods
+304,Induced Polarisation,See the manufacturer’s recommendations,Geotechnical field measurement methods
+305,Georadar,SGF Method sheet Georadar 01/08/2006,Geotechnical field measurement methods
+306,VLF,See the manufacturer’s recommendations,Geotechnical field measurement methods
+307,Magnetometry,See the manufacturer’s recommendations,Geotechnical field measurement methods
+308,Other EM,See the manufacturer’s recommendations,Geotechnical field measurement methods

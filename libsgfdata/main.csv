@@ -1,0 +1,23 @@
+code,name,unit,format,remark
+FoderDim,Dimension casing tube (Dy/Di),mm,Figure,
+FoderDj,"Length, casing tube",m,Figure,
+H2OJobb,Job on pontoon,,Text,Yes/No
+HH,Distance to the right,m,Figure,
+HJ,Work or project number,,Figure,
+HK,Investigation point,,Figure,
+HL,Section,m,,
+HM,Method code,figure,see Method codes,
+HN,Serial number measurement probe,,Figure,
+HO,Pre-drilling depth,m,Figure,
+HQ,Signature,,Text,
+HV,Distance to the left,m,Figure,
+HX,X-coordinate,m,Figure,
+HY,Y-coordinate,m,Figure,
+HZ,Z-coordinate,m,Figure,
+InMatn,Surveying in reverse order,,Text,Yes/No
+KD,Date,,,
+KP,Project name,,Text,
+Person,Responsible drilling operator or measurement operator,,Text,
+RefDatum,Date Reference measurement,,figure (YYYYMMDD),
+RefMatn,Reference measurement,,Text,
+Rigg,Type of drilling rig,,Text,
