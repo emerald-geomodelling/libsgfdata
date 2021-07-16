@@ -1,4 +1,4 @@
-# Parser for Swedish Geotechnical Society data format',
+# Parser for Swedish Geotechnical Society data format
 
 Parser for data from geotechnical field investigations in the data
 format specified in Report 3:2012E from the Swedish Geotechnical
