@@ -2,6 +2,7 @@ import re
 import pkg_resources
 import pandas as pd
 import numpy as np
+import slugify
 
 blocknames = {"£": "method", "$":"main", "#":"data", "€": "method"}
 
@@ -11,11 +12,18 @@ with pkg_resources.resource_stream("libsgfdata", "main.csv") as f:
     main = pd.read_csv(f).set_index("code")
 with pkg_resources.resource_stream("libsgfdata", "data.csv") as f:
     data = pd.read_csv(f).set_index("code")
-
+    
 with pkg_resources.resource_stream("libsgfdata", "methods.csv") as f:
     methods = pd.read_csv(f).set_index("code")
 with pkg_resources.resource_stream("libsgfdata", "comments.csv") as f:
     comments = pd.read_csv(f).set_index("code")
+
+
+method["ident"] = method.name.astype(str).apply(lambda x: slugify.slugify(x, separator="_"))
+main["ident"] = main.name.astype(str).apply(lambda x: slugify.slugify(x, separator="_"))
+data["ident"] = data.name.astype(str).apply(lambda x: slugify.slugify(x, separator="_"))
+methods["ident"] = methods.name.astype(str).apply(lambda x: slugify.slugify(x, separator="_"))
+comments["ident"] = comments.name.astype(str).apply(lambda x: slugify.slugify(x, separator="_"))
 
 
 _RE_FLOAT = re.compile(r"^[-+]?[0-9]*(\.[0-9]*)?(e[-+]?[0-9]+)?$")
@@ -66,38 +74,38 @@ def _make_dfs(sections):
 def _rename_data_columns(sections):
     for idx in range(len(sections)):
         if "data" in sections[idx]:
-            sections[idx]["data"] = sections[idx]["data"].rename(columns = data.name.to_dict())
+            sections[idx]["data"] = sections[idx]["data"].rename(columns = data.ident.to_dict())
 
 def _rename_main(sections):
     for idx in range(len(sections)):
         sections[idx]["main"] = [
-            {main.loc[key, "name"] if key in main.index else key: value
+            {main.loc[key, "ident"] if key in main.index else key: value
              for key, value in row.items()}
             for row in sections[idx]["main"]]
 
 def _rename_method(sections):
     for idx in range(len(sections)):
         sections[idx]["method"] = [
-            {method.loc[key, "name"] if key in method.index else key: value
+            {method.loc[key, "ident"] if key in method.index else key: value
              for key, value in row.items()}
             for row in sections[idx]["method"]]
         
 def _rename_values_method_code(sections):
     for section in sections:
         for row in section["main"]:
-            if 'Method code' in row:
-                code = str(row['Method code'])
+            if 'method_code' in row:
+                code = str(row['method_code'])
                 if code in methods.index:
-                    row['Method code'] = methods.loc[code, "name"]
+                    row['method_code'] = methods.loc[code, "ident"]
 
 def _rename_values_comments(sections):
     for section in sections:
-        if "Comments" in section["data"].columns:
-            codes = section["data"].Comments.fillna(-1).astype(int)
+        if "comments" in section["data"].columns:
+            codes = section["data"].comments.fillna(-1).astype(int)
             missing = list(set(codes.unique()) - set(comments.index))
             labels = pd.concat((comments,
-                                pd.DataFrame([{"name": code} for code in missing], index=missing)))
-            section["data"]["Comments"] = labels.loc[codes, "name"].values
+                                pd.DataFrame([{"ident": code} for code in missing], index=missing)))
+            section["data"]["comments"] = labels.loc[codes, "ident"].values
 
 def parse(*arg, **kw):
     sections = _parse_raw(*arg, **kw)
