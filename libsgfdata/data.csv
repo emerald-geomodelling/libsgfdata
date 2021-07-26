@@ -35,7 +35,7 @@ L,Side pressure,kPa,figure,
 M,Conductivity,s/m,figure,
 MS,Membrane stiffness.,,,
 N,Rod friction,kN,figure,
-,Zero-value tip pressure,MPa,figure,Previous test
+NA,Zero-value tip pressure,MPa,figure,Previous test
 NB,Zero-value friction,kPa,figure,Previous test
 NC,Zero-value pore pressure,kPa,figure,Previous test
 O,Temperature degrees,,figure,
@@ -103,6 +103,7 @@ NC3,"Second zero value after test, Pore pressure",kPa,,
 BattVolt,Battery voltage,Volt,,
 DatumTid,Measured value’s time indication,yyyymmddhhmmssmsmsms,,
 Flag,Allocated value during performance of sounding,Numeral,,New code according to Geotech
+F,Allocated value during performance of sounding,Numeral,,New code according to Geotech
 TCR,Total core recovery,%,,
 RQD,Rock quality designation,%,,
 SCR,Solid core recovery,%,,
@@ -117,3 +118,5 @@ HV,Offset left,,,
 HX,X-coordinate,,,
 HY,Y-coordinate,,,
 HZ,Z-coordinate,,,
+RN,Slumptal,,,
+%,Tidsangivelse för lagrad mätdata,,,

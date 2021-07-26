@@ -3,20 +3,26 @@ import pkg_resources
 import pandas as pd
 import numpy as np
 import slugify
+import codecs
 
 blocknames = {"£": "method", "$":"main", "#":"data", "€": "method"}
 
+def _read_csv(f):
+    return pd.read_csv(f, na_values=['', '#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', '-NaN', '-nan',
+                                     '1.#IND', '1.#QNAN', '<NA>', 'N/A', 'NULL', 'NaN', 'n/a', 'nan', 'null'],
+                       keep_default_na=False).set_index("code")
+
 with pkg_resources.resource_stream("libsgfdata", "method.csv") as f:
-    method = pd.read_csv(f).set_index("code")
+    method = _read_csv(f)
 with pkg_resources.resource_stream("libsgfdata", "main.csv") as f:
-    main = pd.read_csv(f).set_index("code")
+    main = _read_csv(f)
 with pkg_resources.resource_stream("libsgfdata", "data.csv") as f:
-    data = pd.read_csv(f).set_index("code")
+    data = _read_csv(f)
     
 with pkg_resources.resource_stream("libsgfdata", "methods.csv") as f:
-    methods = pd.read_csv(f).set_index("code")
+    methods = _read_csv(f)
 with pkg_resources.resource_stream("libsgfdata", "comments.csv") as f:
-    comments = pd.read_csv(f).set_index("code")
+    comments = _read_csv(f)
 
 
 method["ident"] = method.name.astype(str).apply(lambda x: slugify.slugify(x, separator="_"))
@@ -41,21 +47,28 @@ def _parse_line(line):
     except Exception as e:
         raise Exception("%s: %s" % (e, line))
 
+def _parse_raw(input_filename, *arg, **kw):
+    if isinstance(input_filename, str):
+        with open(input_filename, "rb") as f:
+            return _parse_raw_from_file(f, *arg, **kw)
+    else:
+        return _parse_raw_from_file(input_filename, *arg, **kw)
+
     
-def _parse_raw(filename, encoding="latin-1"):
+def _parse_raw_from_file(f, encoding="latin-1"):
+    f = codecs.getreader(encoding)(f, errors='ignore')
     sections = []
     blocks = None
     block = None
-    with open(filename, encoding=encoding) as f:
-        for row in f:
-            row = row[:-1]
-            if row == "$":
-                blocks = {"£":[], "$":[], "#":[], "€": []}
-                sections.append(blocks)
-            if row in ("£", "$", "#", "€", "#$"):
-                block = row
-            elif block in blocks:
-                blocks[block].append(_parse_line(row))
+    for row in f:
+        row = row.rstrip("\n\r")
+        if row == "$":
+            blocks = {"£":[], "$":[], "#":[], "€": []}
+            sections.append(blocks)
+        if row in ("£", "$", "#", "€", "#$"):
+            block = row
+        elif block in blocks:
+            blocks[block].append(_parse_line(row))
 
     return sections
 
