@@ -144,7 +144,7 @@ def _dump_line(line):
 
 def _dump_raw(sections, output_filename=None, *arg, **kw):
     if isinstance(output_filename, str):
-        with open(output_filename, "rb") as f:
+        with open(output_filename, "wb") as f:
             _dump_raw_to_file(sections, f, *arg, **kw)
     elif output_filename is not None:
         _dump_raw_to_file(sections, output_filename, *arg, **kw)
