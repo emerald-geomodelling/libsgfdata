@@ -184,6 +184,8 @@ def _unrename_main(sections):
 
 def _unrename_method(sections):
     for idx in range(len(sections)):
+        if "method" not in sections[idx]:
+            continue
         sections[idx]["method"] = [
             {unmethod.loc[key, "code"] if key in unmethod.index else key: value
              for key, value in row.items()}
