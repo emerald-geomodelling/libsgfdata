@@ -33,4 +33,15 @@ are supported.
     3  0.100    0.478           0.488   154909        641  ...    0.377         0.0      0.0     no_c...   NaN
     4  0.125    0.500           0.500   154910        657  ...    0.251         0.0      0.0     no_c...   NaN
 
-Note that the main block of a section is a list of rows, while in practice it is very uncommon for this list to have any other length than 1.
+Note that the main block of a section is a list of rows, while in
+practice it is very uncommon for this list to have any other length
+than 1.
+
+To write the data structure back to a file
+
+    >>> with open("example.tot", "wb") as f:
+        libsgfdata.dump(sections, f)
+
+or
+
+    >>> libsgfdata.dump(sections, "example.tot")
