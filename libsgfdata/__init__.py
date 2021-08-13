@@ -40,11 +40,14 @@ def make_idents(tbl):
     """Basically we just slugify the name, but for duplicate names, we
     include the unit too to disambiguate.
     """
-    counts = tbl["name"].value_counts()
-    duplicates = counts.loc[counts > 1].index
+    duplicates = []
+    if "unit" in tbl.columns:
+        unit_counts = tbl[["name", "unit"]].fillna(-1).value_counts()
+        counts = tbl["name"].value_counts()
+        duplicates = counts.loc[counts > 1].index
     def ident_for_row(row):
         name = str(row["name"])
-        if row["name"] in duplicates and "unit" in row:
+        if row["name"] in duplicates and len(unit_counts[row["name"]]) > 1:
             unit = row["unit"]
             if unit == "0=off 1=on":
                 unit = "flag"
@@ -182,7 +185,7 @@ def _rename_values_comments(sections):
             section["data"]["comments"] = labels.loc[codes, "ident"].values
 
 def _rename_values_data_flags(sections):
-    key = "allocated_value_during_performance_of_sounding_numeral"
+    key = "allocated_value_during_performance_of_sounding"
     for section in sections:
         if key in section["data"].columns:
             codes = section["data"][key].fillna(-1).astype(int)
@@ -284,7 +287,7 @@ def _unrename_values_comments(sections):
             section["data"][key] = labels.loc[codes, "code"].values
 
 def _unrename_values_data_flags(sections):
-    key = "allocated_value_during_performance_of_sounding_numeral"
+    key = "allocated_value_during_performance_of_sounding"
     for section in sections:
         if key in section["data"].columns:
             codes = section["data"][key]
