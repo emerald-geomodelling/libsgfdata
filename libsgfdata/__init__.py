@@ -34,11 +34,27 @@ with pkg_resources.resource_stream("libsgfdata", "comments.csv") as f:
     comments = _read_csv(f)
 
 
-method["ident"] = method.name.astype(str).apply(lambda x: slugify.slugify(x, separator="_"))
-main["ident"] = main.name.astype(str).apply(lambda x: slugify.slugify(x, separator="_"))
-data["ident"] = data.name.astype(str).apply(lambda x: slugify.slugify(x, separator="_"))
-methods["ident"] = methods.name.astype(str).apply(lambda x: slugify.slugify(x, separator="_"))
-comments["ident"] = comments.name.astype(str).apply(lambda x: slugify.slugify(x, separator="_"))
+def make_idents(tbl):
+    """Basically we just slugify the name, but for duplicate names, we
+    include the unit too to disambiguate.
+    """
+    counts = tbl["name"].value_counts()
+    duplicates = counts.loc[counts > 1].index
+    def ident_for_row(row):
+        name = str(row["name"])
+        if row["name"] in duplicates and "unit" in row:
+            unit = row["unit"]
+            if unit == "0=off 1=on":
+                unit = "flag"
+            name = "%s-%s" % (name, unit)
+        return slugify.slugify(name, separator="_")
+    tbl["ident"] = tbl.apply(ident_for_row, axis=1)
+
+make_idents(method)
+make_idents(main)
+make_idents(data)
+make_idents(methods)
+make_idents(comments)
 
 unmethod = method.reset_index().set_index("ident")
 unmain = main.reset_index().set_index("ident")
