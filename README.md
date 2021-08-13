@@ -16,9 +16,9 @@ are supported.
 # Usage
 
     >>> import libsgfdata
-    >>> sections = libsgfdata.parse("example.tot")
+    >>> data = libsgfdata.parse("example.tot")
     
-    >>> sections[0]["main"][0]
+    >>> data[0]["main"][0]
     {'pre_drilling_depth': '',
      'method_code': 'norwegian_total_sounding',
      'work_or_project_number': '12345678-01',
