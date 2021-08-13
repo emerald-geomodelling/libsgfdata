@@ -39,9 +39,9 @@ than 1.
 
 To write the data structure back to a file
 
-    >>> with open("example.tot", "wb") as f:
-        libsgfdata.dump(sections, f)
+    >>> with open("example-out.tot", "wb") as f:
+        libsgfdata.dump(data, f)
 
 or
 
-    >>> libsgfdata.dump(sections, "example.tot")
+    >>> libsgfdata.dump(data, "example-out.tot")
