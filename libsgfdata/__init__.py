@@ -32,6 +32,8 @@ with pkg_resources.resource_stream("libsgfdata", "methods.csv") as f:
     methods = _read_csv(f)
 with pkg_resources.resource_stream("libsgfdata", "comments.csv") as f:
     comments = _read_csv(f)
+with pkg_resources.resource_stream("libsgfdata", "data-flags.csv") as f:
+    data_flags = _read_csv(f)
 
 
 def make_idents(tbl):
@@ -55,12 +57,14 @@ make_idents(main)
 make_idents(data)
 make_idents(methods)
 make_idents(comments)
+make_idents(data_flags)
 
 unmethod = method.reset_index().set_index("ident")
 unmain = main.reset_index().set_index("ident")
 undata = data.reset_index().set_index("ident")
 unmethods = methods.reset_index().set_index("ident")
 uncomments = comments.reset_index().set_index("ident")
+undata_flags = data_flags.reset_index().set_index("ident")
 
 _RE_FLOAT = re.compile(r"^\s*[-+]?[0-9]*(\.[0-9]*)?([eE][-+]?[0-9]+)?\s*$")
 _RE_INT = re.compile(r"^\s*[-+]?[0-9]+\s*$")
@@ -177,6 +181,16 @@ def _rename_values_comments(sections):
                                 pd.DataFrame([{"ident": code} for code in missing], index=missing)))
             section["data"]["comments"] = labels.loc[codes, "ident"].values
 
+def _rename_values_data_flags(sections):
+    key = "allocated_value_during_performance_of_sounding_numeral"
+    for section in sections:
+        if key in section["data"].columns:
+            codes = section["data"][key].fillna(-1).astype(int)
+            missing = list(set(codes.unique()) - set(data_flags.index))
+            labels = pd.concat((data_flags,
+                                pd.DataFrame([{"ident": code} for code in missing], index=missing)))
+            section["data"][key] = labels.loc[codes, "ident"].values
+            
 def parse(*arg, **kw):
     sections = _parse_raw(*arg, **kw)
     _rename_blocks(sections)
@@ -186,6 +200,7 @@ def parse(*arg, **kw):
     _make_dfs(sections)
     _rename_data_columns(sections)
     _rename_values_comments(sections)
+    _rename_values_data_flags(sections)
     return sections
 
 def _unconv(k, v):
@@ -259,16 +274,28 @@ def _unrename_values_method_code(sections):
                     row['method_code'] = unmethods.loc[code, "code"]
 
 def _unrename_values_comments(sections):
+    key = "comments"
     for section in sections:
-        if "comments" in section["data"].columns:
-            codes = section["data"].comments
+        if key in section["data"].columns:
+            codes = section["data"][key]
             missing = list(set(codes.unique()) - set(uncomments.index))
             labels = pd.concat((uncomments,
                                 pd.DataFrame([{"code": code} for code in missing], index=missing)))
-            section["data"]["comments"] = labels.loc[codes, "code"].values
+            section["data"][key] = labels.loc[codes, "code"].values
+
+def _unrename_values_data_flags(sections):
+    key = "allocated_value_during_performance_of_sounding_numeral"
+    for section in sections:
+        if key in section["data"].columns:
+            codes = section["data"][key]
+            missing = list(set(codes.unique()) - set(undata_flags.index))
+            labels = pd.concat((undata_flags,
+                                pd.DataFrame([{"code": code} for code in missing], index=missing)))
+            section["data"][key] = labels.loc[codes, "code"].values
                     
 def dump(sections, *arg, **kw):
     sections = copy.deepcopy(sections)    
+    _unrename_values_data_flags(sections)
     _unrename_values_comments(sections)
     _unrename_data_columns(sections)
     _unmake_dfs(sections)
