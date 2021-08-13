@@ -23,5 +23,6 @@ setuptools.setup(
         "numpy",
         "pandas",
         "python-slugify",
+        "python-dateutil",
     ],
 )
