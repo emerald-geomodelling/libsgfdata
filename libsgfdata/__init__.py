@@ -39,8 +39,15 @@ undata = data.reset_index().set_index("ident")
 unmethods = methods.reset_index().set_index("ident")
 uncomments = comments.reset_index().set_index("ident")
 
-_RE_FLOAT = re.compile(r"^[-+]?[0-9]*(\.[0-9]*)?(e[-+]?[0-9]+)?$")
-_RE_INT = re.compile(r"^[-+]?[0-9]+$")
+_RE_FLOAT = re.compile(r"^\s*[-+]?[0-9]*(\.[0-9]*)?([eE][-+]?[0-9]+)?\s*$")
+_RE_INT = re.compile(r"^\s*[-+]?[0-9]+\s*$")
+# Fields are generally separated by "," and contain a single "="
+# separating the key from the value. However, some fields have values
+# containing ",", with no quoting. To handle this, we require the key
+# to contain only a-z and A-Z. In addition, the Geotech AB extension,
+# have date fields (key "%") with no "=" separating the key from the
+# value...
+_RE_FIELD_SEP = re.compile(r",(?:(?=[a-zA-Z])|(?=%))")
 
 def _conv(v):
     if v and re.match(_RE_INT, v):
@@ -50,7 +57,7 @@ def _conv(v):
     return v
 def _parse_line(line):
     try:
-        return {k:_conv(v) for k, v in (i.split("=") for i in re.split(r",(?=[A-Z])", line))}
+        return {k:_conv(v) for k, v in (i.split("=") if "=" in i else [i[0], i[1:]] for i in re.split(_RE_FIELD_SEP, line))}
     except Exception as e:
         raise Exception("%s: %s" % (e, line))
 
