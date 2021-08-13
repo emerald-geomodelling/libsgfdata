@@ -15,7 +15,7 @@ HX,X-coordinate,m,Figure,
 HY,Y-coordinate,m,Figure,
 HZ,Z-coordinate,m,Figure,
 InMatn,Surveying in reverse order,,Text,Yes/No
-KD,Date,,,
+KD,Date,,figure (YYYYMMDD),
 KP,Project name,,Text,
 Person,Responsible drilling operator or measurement operator,,Text,
 RefDatum,Date Reference measurement,,figure (YYYYMMDD),

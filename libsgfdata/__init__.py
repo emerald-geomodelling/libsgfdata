@@ -5,14 +5,21 @@ import numpy as np
 import slugify
 import codecs
 import copy
+import dateutil.parser
+import datetime
 
 blocknames = {"£": "method", "$":"main", "#":"data", "€": "method"}
 unblocknames = {v:k for k, v in blocknames.items()}
 
+date_fields = ["HD", "RefDatum"]
+datetime_fields = ["AK", "DatumTid"]
+time_fields = ["%", "AD"]
+
+na_values = ['', '#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', '-NaN', '-nan',
+             '1.#IND', '1.#QNAN', '<NA>', 'N/A', 'NULL', 'NaN', 'n/a', 'nan', 'null']
+
 def _read_csv(f):
-    return pd.read_csv(f, na_values=['', '#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', '-NaN', '-nan',
-                                     '1.#IND', '1.#QNAN', '<NA>', 'N/A', 'NULL', 'NaN', 'n/a', 'nan', 'null'],
-                       keep_default_na=False).set_index("code")
+    return pd.read_csv(f, na_values=na_values, keep_default_na=False).set_index("code")
 
 with pkg_resources.resource_stream("libsgfdata", "method.csv") as f:
     method = _read_csv(f)
@@ -49,15 +56,35 @@ _RE_INT = re.compile(r"^\s*[-+]?[0-9]+\s*$")
 # value...
 _RE_FIELD_SEP = re.compile(r",(?:(?=[a-zA-Z])|(?=%))")
 
-def _conv(v):
-    if v and re.match(_RE_INT, v):
+def _conv(k, v):
+    # The SGF standard requires specific date formats, but in practice
+    # many different formats are in use. We therefore use dateutil to
+    # auto-detect the format as well as we can.
+    #
+    # Examples:
+    #
+    # AK=200208221132
+    # HD=20120105
+    # HD=09/04/99
+    # HD=27.06.2014
+    #
+    # We give preference to the norwegian date format over the american one, as this is a scandinavian
+    # file format.
+    # But seriously, why don't we all just use the ISO format?
+    
+    if k in date_fields:
+        return dateutil.parser.parse(v, parserinfo=dateutil.parser.parserinfo(dayfirst=True)).date()
+    elif k in datetime_fields:
+        return dateutil.parser.parse(v, parserinfo=dateutil.parser.parserinfo(dayfirst=True))
+    elif v and re.match(_RE_INT, v):
         return int(v)
     elif v and re.match(_RE_FLOAT, v):
         return float(v)
     return v
+
 def _parse_line(line):
     try:
-        return {k:_conv(v) for k, v in (i.split("=") if "=" in i else [i[0], i[1:]] for i in re.split(_RE_FIELD_SEP, line))}
+        return {k:_conv(k, v) for k, v in (i.split("=") if "=" in i else [i[0], i[1:]] for i in re.split(_RE_FIELD_SEP, line))}
     except Exception as e:
         raise Exception("%s: %s" % (e, line))
 
@@ -145,9 +172,18 @@ def parse(*arg, **kw):
     _rename_values_comments(sections)
     return sections
 
+def _unconv(k, v):
+    if k == "DatumTid":
+        return v.strftime("%Y%m%d%H%M%S%f")[:-3] # Milliseconds are not supported by strftime, so use %f and remove three decimals
+    elif isinstance(v, datetime.date):
+        return v.strftime("%Y%m%d")
+    elif isinstance(v, datetime.datetime):
+        return v.strftime("%Y%m%d%H%M")
+    else:
+        return str(v)
 
 def _dump_line(line):
-    return ",".join("%s=%s" % (k,v) for k,v in line.items() if str(v) and (not isinstance(v, float) or not np.isnan(v)))
+    return ",".join("%s=%s" % (k,_unconv(k, v)) for k,v in line.items() if str(v) and (not isinstance(v, float) or not np.isnan(v)))
 
 def _dump_raw(sections, output_filename=None, *arg, **kw):
     if isinstance(output_filename, str):
