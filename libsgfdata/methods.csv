@@ -16,12 +16,17 @@ code,name,reference,group
 131,Disturbed sampling,SS EN ISO 22475-1:2006,European field methods included in SGF’s format standard
 132,Core sampling,SS EN ISO 22475-1:2006,European field methods included in SGF’s format standard
 3,Pressure soundingQ,"Field Manual, SGF Report 1:2013",Traditional Swedish and Nordic field methods that are not covered by a European standard
+7, cpt,,
 10,Impact soundingQ,"Field Manual, SGF Report 1:2013",Traditional Swedish and Nordic field methods that are not covered by a European standard
 11,Light soundingQ,"Field Manual, SGF Report 1:2013",Traditional Swedish and Nordic field methods that are not covered by a European standard
 12,Soil-rock sounding 1,"“Method description for soil-rock sounding”, SGF report 4:2012",Traditional Swedish and Nordic field methods that are not covered by a European standard
 13,Field vane test,"“Recommended standard for vane testing”, SGF report 1:93",Traditional Swedish and Nordic field methods that are not covered by a European standard
+21,rotary,,
+22,simple,,
 23,Rotary pressure sounding,"Guide for performance of rotary pressure sounding. (1982, Rev. 1 1989)",Traditional Swedish and Nordic field methods that are not covered by a European standard
 24,Norwegian total sounding,Guide for the performance of total sounding. (1994),Traditional Swedish and Nordic field methods that are not covered by a European standard
+25,total,,
+26,rock drilling,,
 39,Finnish HK sounding,-,Traditional Swedish and Nordic field methods that are not covered by a European standard
 41,Soil-rock sounding 2,"“Method description for soil-rock sounding”, SGF report 4:2012",Traditional Swedish and Nordic field methods that are not covered by a European standard
 42,Soil-rock sounding 3,"“Method description for soil-rock sounding”, SGF report 4:2012",Traditional Swedish and Nordic field methods that are not covered by a European standard

@@ -1,5 +1,5 @@
 code,name,unit,format,remark
-A,Feed trust force,kN,figure,
+A,Feed thrust force,kN,figure,
 AA,Rotary angle,degrees,figure,
 AB,Torque,Nm,figure,
 AD,Time,seconds,figure,
