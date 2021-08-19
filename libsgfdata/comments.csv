@@ -61,8 +61,8 @@ code,name,text,remark,group
 92,Assumed hit boulder,Stop against stone or block,,Stop codes
 93,Assumed bedrock,"Stop against stone, block or rock",,Stop codes
 94,Reached bedrock,Stop against presumed rock,,Stop codes
-95,Broken_drill,(Soil-rock sounding) interrupted,,Stop codes
-96,Other_fault,,,Stop codes
+95,Broken drill,(Soil-rock sounding) interrupted,,Stop codes
+96,Other fault,,,Stop codes
 97,Drilling abandoned,,,Stop codes
 98,Max. inclination,,,Stop codes
 99,Equipment damaged,,,Stop codes
