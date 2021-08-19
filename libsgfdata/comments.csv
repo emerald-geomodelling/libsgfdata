@@ -56,13 +56,13 @@ code,name,text,remark,group
 83,Peat,P,,Free codes (example)
 84,Moraine soil,Ti,,Free codes (example)
 85,Clay till,ClTi,,Free codes (example)
-90,Interrupted without stop,Interrupted without stop,,Stop codes
-91,Cannot drive further,Cannot drive further,,Stop codes
-92,Stop against stone or block,Stop against stone or block,,Stop codes
-93,"Stop against stone, block or rock","Stop against stone, block or rock",,Stop codes
-94,Stop against presumed rock,Stop against presumed rock,,Stop codes
-95,(Soil-rock sounding) interrupted,(Soil-rock sounding) interrupted,,Stop codes
-96,Predetermined depth,,,Stop codes
-97,Max. capacity,,,Stop codes
+90,Drilling abandoned prematurely,Interrupted without stop,,Stop codes
+91,Abandoned hit hard surface,Cannot drive further,,Stop codes
+92,Assumed hit boulder,Stop against stone or block,,Stop codes
+93,Assumed bedrock,"Stop against stone, block or rock",,Stop codes
+94,Reached bedrock,Stop against presumed rock,,Stop codes
+95,Broken_drill,(Soil-rock sounding) interrupted,,Stop codes
+96,Other_fault,,,Stop codes
+97,Drilling abandoned,,,Stop codes
 98,Max. inclination,,,Stop codes
 99,Equipment damaged,,,Stop codes
