@@ -102,13 +102,13 @@ def _conv(k, v):
             return dateutil.parser.parse(v, parserinfo=dateutil.parser.parserinfo(dayfirst=True)).date()
         except Exception as e:
             #fixme: make this per file, not per depth row of data
-            #logger.info("Unable to parse date %s: %s" %(v,e))
+            logger.debug("Unable to parse date %s: %s" %(v,e))
             return v
     elif k in datetime_fields:
         try:
             return dateutil.parser.parse(v, parserinfo=dateutil.parser.parserinfo(dayfirst=True))
         except Exception as e:
-            #logger.info("Unable to parse time %s: %s" %(v,e))
+            logger.debug("Unable to parse time %s: %s" %(v,e))
             return v
     elif v and re.match(_RE_INT, v):
         return int(v)
