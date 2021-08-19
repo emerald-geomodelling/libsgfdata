@@ -7,6 +7,8 @@ import codecs
 import copy
 import dateutil.parser
 import datetime
+import logging
+logger = logging.getLogger(__name__)
 
 blocknames = {"£": "method", "$":"main", "#":"data", "€": "method"}
 unblocknames = {v:k for k, v in blocknames.items()}
@@ -94,11 +96,20 @@ def _conv(k, v):
     # We give preference to the norwegian date format over the american one, as this is a scandinavian
     # file format.
     # But seriously, why don't we all just use the ISO format?
-    
+
     if k in date_fields:
-        return dateutil.parser.parse(v, parserinfo=dateutil.parser.parserinfo(dayfirst=True)).date()
+        try:
+            return dateutil.parser.parse(v, parserinfo=dateutil.parser.parserinfo(dayfirst=True)).date()
+        except Exception as e:
+            #fixme: make this per file, not per depth row of data
+            #logger.info("Unable to parse date %s: %s" %(v,e))
+            return v
     elif k in datetime_fields:
-        return dateutil.parser.parse(v, parserinfo=dateutil.parser.parserinfo(dayfirst=True))
+        try:
+            return dateutil.parser.parse(v, parserinfo=dateutil.parser.parserinfo(dayfirst=True))
+        except Exception as e:
+            #logger.info("Unable to parse time %s: %s" %(v,e))
+            return v
     elif v and re.match(_RE_INT, v):
         return int(v)
     elif v and re.match(_RE_FLOAT, v):
