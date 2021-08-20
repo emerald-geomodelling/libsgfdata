@@ -107,7 +107,7 @@ def _conv(k, v):
 
 def _parse_line(line):
     try:
-        return {k:_conv(k, v) for k, v in (i.split("=") if "=" in i else [i[0], i[1:]] for i in re.split(_RE_FIELD_SEP, line))}
+        return {k:_conv(k, v) for k, v in (i.split("=", 1) if "=" in i else [i[0], i[1:]] for i in re.split(_RE_FIELD_SEP, line))}
     except Exception as e:
         raise Exception("%s: %s" % (e, line))
 
@@ -178,7 +178,12 @@ def _rename_values_method_code(sections):
 def _rename_values_comments(sections):
     for section in sections:
         if "comments" in section["data"].columns:
-            codes = section["data"].comments.fillna(-1).astype(int)
+            def convert(x):
+                try:
+                    return int(x)
+                except:
+                    return x
+            codes = section["data"].comments.fillna(-1).apply(convert)
             missing = list(set(codes.unique()) - set(comments.index))
             labels = pd.concat((comments,
                                 pd.DataFrame([{"ident": code} for code in missing], index=missing)))
