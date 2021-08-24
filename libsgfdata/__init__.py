@@ -8,6 +8,10 @@ import copy
 import dateutil.parser
 import datetime
 import logging
+from pathlib import Path
+import sys
+import cchardet as chardet
+
 logger = logging.getLogger(__name__)
 
 blocknames = {"£": "method", "$":"main", "#":"data", "€": "method"}
@@ -118,6 +122,8 @@ def _conv(k, v):
 
 def _parse_line(line):
     try:
+        if not line.strip():
+            return {}
         return {k:_conv(k, v) for k, v in (i.split("=", 1) if "=" in i else [i[0], i[1:]] for i in re.split(_RE_FIELD_SEP, line))}
     except Exception as e:
         raise Exception("%s: %s" % (e, line))
@@ -130,8 +136,18 @@ def _parse_raw(input_filename, *arg, **kw):
         return _parse_raw_from_file(input_filename, *arg, **kw)
 
     
-def _parse_raw_from_file(f, encoding="latin-1"):
+def _parse_raw_from_file(f, encoding=None):
+    if encoding is None:
+        sample = f.read(4096)
+        detection = chardet.detect(sample)
+        if detection["confidence"] < 0.85:
+            encoding = 'latin-1'
+        else:
+            encoding = detection["encoding"]
+        f.seek(0)
+
     f = codecs.getreader(encoding)(f, errors='ignore')
+
     sections = []
     blocks = None
     block = None
@@ -144,7 +160,6 @@ def _parse_raw_from_file(f, encoding="latin-1"):
             block = row
         elif block in blocks:
             blocks[block].append(_parse_line(row))
-
     return sections
 
 def _rename_blocks(sections):
@@ -154,10 +169,11 @@ def _rename_blocks(sections):
 
 def _make_dfs(sections):
     for idx in range(len(sections)):
-        if sections[idx]["data"]:
-            sections[idx]["data"] = pd.DataFrame(sections[idx]["data"])
-        else:
-            del sections[idx]["data"]
+        if "data" in sections[idx]:
+            if sections[idx]["data"]:
+                sections[idx]["data"] = pd.DataFrame(sections[idx]["data"])
+            else:
+                del sections[idx]["data"]
 
 def _rename_data_columns(sections):
     for idx in range(len(sections)):
@@ -188,7 +204,7 @@ def _rename_values_method_code(sections):
 
 def _rename_values_comments(sections):
     for section in sections:
-        if "comments" in section["data"].columns:
+        if "data" in section and "comments" in section["data"].columns:
             def convert(x):
                 try:
                     return int(x)
@@ -203,7 +219,7 @@ def _rename_values_comments(sections):
 def _rename_values_data_flags(sections):
     key = "allocated_value_during_performance_of_sounding"
     for section in sections:
-        if key in section["data"].columns:
+        if "data" in section and key in section["data"].columns:
             codes = section["data"][key].fillna(-1).astype(int)
             missing = list(set(codes.unique()) - set(data_flags.index))
             labels = pd.concat((data_flags,
