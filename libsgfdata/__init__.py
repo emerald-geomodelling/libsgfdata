@@ -147,7 +147,6 @@ def _parse_raw_from_file(f, encoding=None):
         f.seek(0)
 
     f = codecs.getreader(encoding)(f, errors='ignore')
-
     sections = []
     blocks = None
     block = None
