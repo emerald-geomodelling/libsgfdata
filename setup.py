@@ -24,5 +24,6 @@ setuptools.setup(
         "pandas",
         "python-slugify",
         "python-dateutil",
+        "cchardet"
     ],
 )
