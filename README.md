@@ -53,3 +53,52 @@ While the SGF standard clearly says that files should be encoded using `latin-1`
     >>> data = libsgfdata.parse("example.tot", "iso-8859-15")
 
 Note that it is unlikely that a failed detection leads to a failure to parse the file: Most common confusions are between different `latin-` charsets, and using the wrong one of these will only lead to non-ascii characters in text fields being wrong, not the entire file failing to read.
+
+# Static metadata
+
+For each of the block types there is a pandas dataframe with
+description and measurement unit (if any) for the fields:
+
+    >>> libsgfdata.main
+                                       name unit  format  remark                        ident
+    code                                                                                     
+    FoderDim  Dimension casing tube (Dy/Di)   mm  Figure     NaN  dimension_casing_tube_dy_di
+    FoderDj             Length, casing tube    m  Figure     NaN           length_casing_tube
+    H2OJobb                  Job on pontoon  NaN    Text  Yes/No               job_on_pontoon
+    HH                Distance to the right    m  Figure     NaN        distance_to_the_right
+    HJ               Work or project number  NaN  Figure     NaN       work_or_project_number
+
+    >>> libsgfdata.method
+                              name   format unit                      remark                ident
+    code                                                                                         
+    AN                 Start depth  Numeral    m       metres under pipe top          start_depth
+    Ant-f      Screened/unscreened      NaN  NaN                         NaN  screened_unscreened
+    Ant-typ           Antenna type      NaN  NaN      e.g. unshielded 50 MHz         antenna_type
+    AO                   End depth  Numeral    m                         NaN            end_depth
+    cc-givare           c/c sensor      NaN  NaN  Distance between geophones           c_c_sensor
+
+    >>> libsgfdata.data
+                      name     unit  format remark             ident
+    code                                                            
+    A           Feed_force       kN  figure    NaN        feed_force
+    AA        Rotary angle  degrees  figure    NaN      rotary_angle
+    AB              Torque       Nm  figure    NaN         torque_nm
+    AD                Time  seconds  figure    NaN              time
+    AE    Contact pressure      kPa  figure    NaN  contact_pressure
+
+In addition, for the two enumeration fields, comment and method, there are similar tables
+
+
+    >>> libsgfdata.methods
+                                                       name  ...                                              ident
+    code                                                     ...                                                   
+    101                        Weight sounding test, manual  ...                        weight_sounding_test_manual
+    102                    Weight sounding test, mechanical  ...                    weight_sounding_test_mechanical
+    107A  Cone penetration test , CPTU (with pore pressu...  ...  cone_penetration_test_cptu_with_pore_pressure_...
+
+    >>> libsgfdata.comments
+                                name text remark          group                       ident
+    code                                                                                   
+    -1                    No comment  NaN    NaN            NaN                  no_comment
+     0           Previous code error  NaN    NaN  General codes         previous_code_error
+     1    Start level following code  NaN    NaN  General codes  start_level_following_code
