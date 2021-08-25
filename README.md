@@ -45,3 +45,11 @@ To write the data structure back to a file
 or
 
     >>> libsgfdata.dump(data, "example-out.tot")
+
+# Character encoding
+
+While the SGF standard clearly says that files should be encoded using `latin-1`, this is often not true in practice. In particular a lot of files found in the wild have been edited by hand in e.g. Notepad on Windows. We try to auto-detect encoding usning [cchardet](https://github.com/PyYoshi/cChardet), and default to `latin-1` if the detection is less than 85% certain. This sometimes fails though. To solve this, you can supply the correct encoding:
+
+    >>> data = libsgfdata.parse("example.tot", "iso-8859-15")
+
+Note that it is unlikely that a failed detection leads to a failure to parse the file: Most common confusions are between different `latin-` charsets, and using the wrong one of these will only lead to non-ascii characters in text fields being wrong, not the entire file failing to read.
