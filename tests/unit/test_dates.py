@@ -1,6 +1,6 @@
 import datetime
 
-import pytest as pytest
+import pytest
 
 import libsgfdata as sgf
 
