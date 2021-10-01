@@ -103,6 +103,11 @@ def _conv(k, v):
 
     if k in date_fields:
         try:
+            if len(v) >= 8:
+                return dateutil.parser.isoparse(v).date()
+        except ValueError as exception:
+            logger.debug("Unable to parse date as iso %s: %s" % (v, exception))
+        try:
             return dateutil.parser.parse(v, parserinfo=dateutil.parser.parserinfo(dayfirst=True)).date()
         except Exception as e:
             #fixme: make this per file, not per depth row of data
