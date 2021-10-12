@@ -75,7 +75,7 @@ unmethods = methods.reset_index().set_index("ident")
 uncomments = comments.reset_index().set_index("ident")
 undata_flags = data_flags.reset_index().set_index("ident")
 
-_RE_FLOAT = re.compile(r"^\s*[-+]?[0-9]*(\.[0-9]*)?([eE][-+]?[0-9]+)?\s*$")
+_RE_FLOAT = re.compile(r"^\s*[-+]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE][-+]?[0-9]+)?\s*$")
 _RE_INT = re.compile(r"^\s*[-+]?[0-9]+\s*$")
 # Fields are generally separated by "," and contain a single "="
 # separating the key from the value. However, some fields have values
