@@ -129,7 +129,7 @@ def _parse_line(line):
     try:
         if not line.strip():
             return {}
-        return {k:_conv(k, v) for k, v in (i.split("=", 1) if "=" in i else [i[0], i[1:]] for i in re.split(_RE_FIELD_SEP, line))}
+        return {k:_conv(k, v.strip()) for k, v in (i.split("=", 1) if "=" in i else [i[0], i[1:]] for i in re.split(_RE_FIELD_SEP, line))}
     except Exception as e:
         raise Exception("%s: %s" % (e, line))
 
