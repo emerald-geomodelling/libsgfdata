@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 blocknames = {"£": "method", "$":"main", "#":"data", "€": "method"}
 unblocknames = {v:k for k, v in blocknames.items()}
 
-date_fields = ["HD", "RefDatum"]
+date_fields = ["HD", "KD", "RefDatum"]
 datetime_fields = ["AK", "DatumTid"]
 time_fields = ["%", "AD"]
 
