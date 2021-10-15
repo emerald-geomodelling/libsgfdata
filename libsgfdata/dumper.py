@@ -11,7 +11,7 @@ import logging
 from pathlib import Path
 import sys
 import cchardet as chardet
-from .metadata import *
+from . import metadata
 
 logger = logging.getLogger(__name__)
 
@@ -46,11 +46,11 @@ def _dump_raw_to_file(sections, f, encoding="latin-1"):
             if blockname == "$" or (blockname in section and section[blockname]):
                 f.write(blockname + "\n")
                 for row in section.get(blockname, []):
-                    f.write(_dump_line(blocknames[blockname], row) + "\n")
+                    f.write(_dump_line(metadata.blocknames[blockname], row) + "\n")
 
 def _unrename_blocks(sections):
     for idx in range(len(sections)):
-        sections[idx] = {unblocknames.get(name, name): block
+        sections[idx] = {metadata.unblocknames.get(name, name): block
                          for name, block in sections[idx].items()}
 
 def _unmake_dfs(sections):
@@ -61,12 +61,12 @@ def _unmake_dfs(sections):
 def _unrename_data_columns(sections):
     for idx in range(len(sections)):
         if "data" in sections[idx]:
-            sections[idx]["data"] = sections[idx]["data"].rename(columns = undata.code.to_dict())
+            sections[idx]["data"] = sections[idx]["data"].rename(columns = metadata.undata.code.to_dict())
 
 def _unrename_main(sections):
     for idx in range(len(sections)):
         sections[idx]["main"] = [
-            {unmain.loc[key, "code"] if key in unmain.index else key: value
+            {metadata.unmain.loc[key, "code"] if key in metadata.unmain.index else key: value
              for key, value in row.items()}
             for row in sections[idx]["main"]]
 
@@ -75,7 +75,7 @@ def _unrename_method(sections):
         if "method" not in sections[idx]:
             continue
         sections[idx]["method"] = [
-            {unmethod.loc[key, "code"] if key in unmethod.index else key: value
+            {metadata.unmethod.loc[key, "code"] if key in metadata.unmethod.index else key: value
              for key, value in row.items()}
             for row in sections[idx]["method"]]
         
@@ -84,16 +84,16 @@ def _unrename_values_method_code(sections):
         for row in section["main"]:
             if 'method_code' in row:
                 code = str(row['method_code'])
-                if code in unmethods.index:
-                    row['method_code'] = unmethods.loc[code, "code"]
+                if code in metadata.unmethods.index:
+                    row['method_code'] = metadata.unmethods.loc[code, "code"]
 
 def _unrename_values_comments(sections):
     key = "comments"
     for section in sections:
         if key in section["data"].columns:
             codes = section["data"][key]
-            missing = list(set(codes.unique()) - set(uncomments.index))
-            labels = pd.concat((uncomments,
+            missing = list(set(codes.unique()) - set(metadata.uncomments.index))
+            labels = pd.concat((metadata.uncomments,
                                 pd.DataFrame([{"code": code} for code in missing], index=missing)))
             section["data"][key] = labels.loc[codes, "code"].values
 
@@ -102,8 +102,8 @@ def _unrename_values_data_flags(sections):
     for section in sections:
         if key in section["data"].columns:
             codes = section["data"][key]
-            missing = list(set(codes.unique()) - set(undata_flags.index))
-            labels = pd.concat((undata_flags,
+            missing = list(set(codes.unique()) - set(metadata.undata_flags.index))
+            labels = pd.concat((metadata.undata_flags,
                                 pd.DataFrame([{"code": code} for code in missing], index=missing)))
             section["data"][key] = labels.loc[codes, "code"].values
                     

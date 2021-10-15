@@ -12,7 +12,7 @@ from pathlib import Path
 import sys
 import cchardet as chardet
 from . import normalizer
-from .metadata import *
+from . import metadata
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ _RE_INT = re.compile(r"^\s*[-+]?[0-9]+\s*$")
 _RE_FIELD_SEP = re.compile(r",(?:(?=[a-zA-Z])|(?=%))")
 
 def _conv(b, k, v):
-    conv = block_metadata[b].conv.get(k, np.nan)
+    conv = metadata.block_metadata[b].conv.get(k, np.nan)
     if conv is not np.nan:
         return conv(v)        
     if v and re.match(_RE_INT, v):
@@ -77,12 +77,12 @@ def _parse_raw_from_file(f, encoding=None):
         if row in ("£", "$", "#", "€", "#$"):
             block = row
         elif block in blocks:
-            blocks[block].append(_parse_line(blocknames[block], row))
+            blocks[block].append(_parse_line(metadata.blocknames[block], row))
     return sections
 
 def _rename_blocks(sections):
     for idx in range(len(sections)):
-        sections[idx] = {blocknames.get(name, name): block
+        sections[idx] = {metadata.blocknames.get(name, name): block
                          for name, block in sections[idx].items()}
 
 def _make_dfs(sections):
@@ -96,19 +96,19 @@ def _make_dfs(sections):
 def _rename_data_columns(sections):
     for idx in range(len(sections)):
         if "data" in sections[idx]:
-            sections[idx]["data"] = sections[idx]["data"].rename(columns = data.ident.to_dict())
+            sections[idx]["data"] = sections[idx]["data"].rename(columns = metadata.data.ident.to_dict())
 
 def _rename_main(sections):
     for idx in range(len(sections)):
         sections[idx]["main"] = [
-            {main.loc[key, "ident"] if key in main.index else key: value
+            {metadata.main.loc[key, "ident"] if key in metadata.main.index else key: value
              for key, value in row.items()}
             for row in sections[idx]["main"]]
 
 def _rename_method(sections):
     for idx in range(len(sections)):
         sections[idx]["method"] = [
-            {method.loc[key, "ident"] if key in method.index else key: value
+            {metadata.method.loc[key, "ident"] if key in metadata.method.index else key: value
              for key, value in row.items()}
             for row in sections[idx]["method"]]
         
@@ -117,8 +117,8 @@ def _rename_values_method_code(sections):
         for row in section["main"]:
             if 'method_code' in row:
                 code = str(row['method_code'])
-                if code in methods.index:
-                    row['method_code'] = methods.loc[code, "ident"]
+                if code in metadata.methods.index:
+                    row['method_code'] = metadata.methods.loc[code, "ident"]
 
 def _rename_values_comments(sections):
     for section in sections:
@@ -129,8 +129,8 @@ def _rename_values_comments(sections):
                 except:
                     return x
             codes = section["data"].comments.fillna(-1).apply(convert)
-            missing = list(set(codes.unique()) - set(comments.index))
-            labels = pd.concat((comments,
+            missing = list(set(codes.unique()) - set(metadata.comments.index))
+            labels = pd.concat((metadata.comments,
                                 pd.DataFrame([{"ident": code} for code in missing], index=missing)))
             section["data"]["comments"] = labels.loc[codes, "ident"].values
 
@@ -139,8 +139,8 @@ def _rename_values_data_flags(sections):
     for section in sections:
         if "data" in section and key in section["data"].columns:
             codes = section["data"][key].fillna(-1).astype(int)
-            missing = list(set(codes.unique()) - set(data_flags.index))
-            labels = pd.concat((data_flags,
+            missing = list(set(codes.unique()) - set(metadata.data_flags.index))
+            labels = pd.concat((metadata.data_flags,
                                 pd.DataFrame([{"ident": code} for code in missing], index=missing)))
             section["data"][key] = labels.loc[codes, "ident"].values
             
