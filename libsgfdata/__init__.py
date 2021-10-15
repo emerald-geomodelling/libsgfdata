@@ -50,15 +50,18 @@ with pkg_resources.resource_stream("libsgfdata", "data-flags.csv") as f:
 # HD=09/04/99
 # HD=27.06.2014
 #
-# We give preference to the norwegian date format over the american
-# one, as this is a scandinavian
+# We give preference to the norwegian date format over the american one, as this is a scandinavian
 # file format.
 # But seriously, why don't we all just use the ISO format?
-    
+
 def _conv_date(v):
     try:
-        return dateutil.parser.parse(
-            v, parserinfo=dateutil.parser.parserinfo(dayfirst=True)).date()
+        if len(v) >= 8:
+            return dateutil.parser.isoparse(v).date()
+    except ValueError as exception:
+        logger.debug("Unable to parse date as iso %s: %s" % (v, exception))
+    try:
+        return dateutil.parser.parse(v, parserinfo=dateutil.parser.parserinfo(dayfirst=True)).date()
     except Exception as e:
         #fixme: make this per file, not per depth row of data
         logger.debug("Unable to parse date %s: %s" %(v,e))
@@ -66,8 +69,7 @@ def _conv_date(v):
 
 def _conv_datetime(v):
     try:
-        return dateutil.parser.parse(
-            v, parserinfo=dateutil.parser.parserinfo(dayfirst=True))
+        return dateutil.parser.parse(v, parserinfo=dateutil.parser.parserinfo(dayfirst=True))
     except Exception as e:
         logger.debug("Unable to parse time %s: %s" %(v,e))
         return v
@@ -117,7 +119,7 @@ unmethods = methods.reset_index().set_index("ident")
 uncomments = comments.reset_index().set_index("ident")
 undata_flags = data_flags.reset_index().set_index("ident")
 
-_RE_FLOAT = re.compile(r"^\s*[-+]?[0-9]*(\.[0-9]*)?([eE][-+]?[0-9]+)?\s*$")
+_RE_FLOAT = re.compile(r"^\s*[-+]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE][-+]?[0-9]+)?\s*$")
 _RE_INT = re.compile(r"^\s*[-+]?[0-9]+\s*$")
 # Fields are generally separated by "," and contain a single "="
 # separating the key from the value. However, some fields have values

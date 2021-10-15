@@ -1,5 +1,5 @@
 code,name,unit,format,remark,type
-A,Feed_force,kN,figure,,
+A,Feed thrust force,kN,figure,,
 AA,Rotary angle,degrees,figure,,
 AB,Torque,Nm,figure,,
 AD,Time,seconds,figure,,time
@@ -9,7 +9,7 @@ AK,Point of time,figure,YYYYMMDDHHMM,,datetime
 AL,Equilibrium pore pressure,kPa,figure,,
 AN,Start depth,m,figure,,
 AO,End depth,m,figure,,
-AP,Hammering,0=off 1=on,figure,,
+AP,Ramming,0=off 1=on,figure,,
 AQ,Rotation,0=off 1=on,figure,,
 AR,Flushing,0=off 1=on,figure,,
 AS,Shear strength,ored,figure,,
