@@ -17,9 +17,9 @@ logger = logging.getLogger(__name__)
 blocknames = {"£": "method", "$":"main", "#":"data", "€": "method"}
 unblocknames = {v:k for k, v in blocknames.items()}
 
-date_fields = ["HD", "RefDatum"]
-datetime_fields = ["AK", "DatumTid"]
-time_fields = ["%", "AD"]
+date_fields = {"main": ["HD", "RefDatum", "KD"]}
+datetime_fields = {"data": ["AK", "DatumTid"]}
+time_fields = {"data": ["%", "AD"]}
 
 na_values = ['', '#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', '-NaN', '-nan',
              '1.#IND', '1.#QNAN', '<NA>', 'N/A', 'NULL', 'NaN', 'n/a', 'nan', 'null']
@@ -85,7 +85,7 @@ _RE_INT = re.compile(r"^\s*[-+]?[0-9]+\s*$")
 # value...
 _RE_FIELD_SEP = re.compile(r",(?:(?=[a-zA-Z])|(?=%))")
 
-def _conv(k, v):
+def _conv(b, k, v):
     # The SGF standard requires specific date formats, but in practice
     # many different formats are in use. We therefore use dateutil to
     # auto-detect the format as well as we can.
@@ -101,14 +101,14 @@ def _conv(k, v):
     # file format.
     # But seriously, why don't we all just use the ISO format?
 
-    if k in date_fields:
+    if k in date_fields.get(b, []):
         try:
             return dateutil.parser.parse(v, parserinfo=dateutil.parser.parserinfo(dayfirst=True)).date()
         except Exception as e:
             #fixme: make this per file, not per depth row of data
             logger.debug("Unable to parse date %s: %s" %(v,e))
             return v
-    elif k in datetime_fields:
+    elif k in datetime_fields.get(b, []):
         try:
             return dateutil.parser.parse(v, parserinfo=dateutil.parser.parserinfo(dayfirst=True))
         except Exception as e:
@@ -120,11 +120,13 @@ def _conv(k, v):
         return float(v)
     return v
 
-def _parse_line(line):
+def _parse_line(block, line):
     try:
         if not line.strip():
             return {}
-        return {k:_conv(k, v) for k, v in (i.split("=", 1) if "=" in i else [i[0], i[1:]] for i in re.split(_RE_FIELD_SEP, line))}
+        return {k:_conv(block, k, v)
+                for k, v in (i.split("=", 1) if "=" in i else [i[0], i[1:]]
+                             for i in re.split(_RE_FIELD_SEP, line))}
     except Exception as e:
         raise Exception("%s: %s" % (e, line))
 
@@ -158,7 +160,7 @@ def _parse_raw_from_file(f, encoding=None):
         if row in ("£", "$", "#", "€", "#$"):
             block = row
         elif block in blocks:
-            blocks[block].append(_parse_line(row))
+            blocks[block].append(_parse_line(blocknames[block], row))
     return sections
 
 def _rename_blocks(sections):
@@ -237,7 +239,7 @@ def parse(*arg, **kw):
     _rename_values_data_flags(sections)
     return sections
 
-def _unconv(k, v):
+def _unconv(b, k, v):
     if k == "DatumTid":
         return v.strftime("%Y%m%d%H%M%S%f")[:-3] # Milliseconds are not supported by strftime, so use %f and remove three decimals
     elif isinstance(v, datetime.date):
@@ -247,8 +249,10 @@ def _unconv(k, v):
     else:
         return str(v)
 
-def _dump_line(line):
-    return ",".join("%s=%s" % (k,_unconv(k, v)) for k,v in line.items() if str(v) and (not isinstance(v, float) or not np.isnan(v)))
+def _dump_line(block, line):
+    return ",".join("%s=%s" % (k,_unconv(block, k, v))
+                    for k,v in line.items()
+                    if str(v) and (not isinstance(v, float) or not np.isnan(v)))
 
 def _dump_raw(sections, output_filename=None, *arg, **kw):
     if isinstance(output_filename, str):
@@ -266,7 +270,7 @@ def _dump_raw_to_file(sections, f, encoding="latin-1"):
             if blockname == "$" or (blockname in section and section[blockname]):
                 f.write(blockname + "\n")
                 for row in section.get(blockname, []):
-                    f.write(_dump_line(row) + "\n")
+                    f.write(_dump_line(blocknames[blockname], row) + "\n")
 
 def _unrename_blocks(sections):
     for idx in range(len(sections)):
