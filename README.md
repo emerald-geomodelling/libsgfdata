@@ -60,6 +60,11 @@ Some of the non-standard extensions to the SGF data format, such as the Geotech 
 
     >>> data = libsgfdata.parse("example.tot", normalize=True)
 
+or
+
+    >>> data = libsgfdata.parse("example.tot")
+    >>> libsgfdata.normalize(data)
+
 # Static metadata
 
 For each of the block types there is a pandas dataframe with
