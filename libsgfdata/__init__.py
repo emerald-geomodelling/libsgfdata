@@ -247,6 +247,7 @@ def _rename_values_data_flags(sections):
             section["data"][key] = labels.loc[codes, "ident"].values
             
 def parse(*arg, **kw):
+    do_normalize = kw.pop("normalize", False)
     sections = _parse_raw(*arg, **kw)
     _rename_blocks(sections)
     _rename_main(sections)
@@ -256,6 +257,8 @@ def parse(*arg, **kw):
     _rename_data_columns(sections)
     _rename_values_comments(sections)
     _rename_values_data_flags(sections)
+    if do_normalize:
+        normalize(sections)
     return sections
 
 def _unconv(b, k, v):
@@ -362,3 +365,16 @@ def dump(sections, *arg, **kw):
     _unrename_blocks(sections)
     sections = _dump_raw(sections, *arg, **kw)
     return sections
+
+def normalize(sections):
+    for section in sections:
+        for blockname, block in section.items():
+            normalization = block_metadata[blockname].loc[~block_metadata[blockname].normalization.isna()].set_index("ident").normalization
+            normalization = block_metadata[blockname].loc[normalization].set_index(normalization.index).ident
+            if isinstance(block, list):
+                for row in block:
+                    for orig, repl in normalization.items():
+                        if orig in row:
+                            row[repl] = row.pop(orig)
+            else:
+                block.rename(columns=normalization.to_dict(), inplace=True)
