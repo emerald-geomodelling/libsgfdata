@@ -50,9 +50,15 @@ or
 
 While the SGF standard clearly says that files should be encoded using `latin-1`, this is often not true in practice. In particular a lot of files found in the wild have been edited by hand in e.g. Notepad on Windows. We try to auto-detect encoding usning [cchardet](https://github.com/PyYoshi/cChardet), and default to `latin-1` if the detection is less than 85% certain. This sometimes fails though. To solve this, you can supply the correct encoding:
 
-    >>> data = libsgfdata.parse("example.tot", "iso-8859-15")
+    >>> data = libsgfdata.parse("example.tot", encoding="iso-8859-15")
 
 Note that it is unlikely that a failed detection leads to a failure to parse the file: Most common confusions are between different `latin-` charsets, and using the wrong one of these will only lead to non-ascii characters in text fields being wrong, not the entire file failing to read.
+
+# Normalization
+
+Some of the non-standard extensions to the SGF data format, such as the Geotech AB extension, provide non-standard fields with overlapping sematics with some standard fields (e.g. `HD` vs `RefDatum`). These fields can optionally be normalized (renamed) on load:
+
+    >>> data = libsgfdata.parse("example.tot", normalize=True)
 
 # Static metadata
 
