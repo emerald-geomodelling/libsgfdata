@@ -50,3 +50,5 @@ code,name,reference,group
 306,VLF,See the manufacturer’s recommendations,Geotechnical field measurement methods
 307,Magnetometry,See the manufacturer’s recommendations,Geotechnical field measurement methods
 308,Other EM,See the manufacturer’s recommendations,Geotechnical field measurement methods
+EMcus001,Total Tolk, Custom EMgeo for Total Tolk method, custom
+EMcus002, prove, Custom EMgeo for prove method, custom
