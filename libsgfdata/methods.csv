@@ -1,4 +1,4 @@
-code,name,reference,group
+code,name,reference,group,source
 101,"Weight sounding test, manual","SIS-CEN ISO/TS 22476-10:2005 or “Method description for weight sounding test”, SGF report 3:99 1",European field methods included in SGF’s format standard
 102,"Weight sounding test, mechanical","SIS-CEN ISO/TS 22476-10:2005 or “Method description for weight sounding”, SGF report 3:99 1",European field methods included in SGF’s format standard
 107A,"Cone penetration test , CPTU (with pore pressure measurement)",SS EN ISO 22476-1,European field methods included in SGF’s format standard
@@ -50,5 +50,9 @@ code,name,reference,group
 306,VLF,See the manufacturer’s recommendations,Geotechnical field measurement methods
 307,Magnetometry,See the manufacturer’s recommendations,Geotechnical field measurement methods
 308,Other EM,See the manufacturer’s recommendations,Geotechnical field measurement methods
-EMcus001,Total Tolk, Custom EMgeo for Total Tolk method, custom
-EMcus002, prove, Custom EMgeo for prove method, custom
+2402,Sample,Norwegian soil sample,KOF files from Geosuite databases
+2413,Piezometer,Installation is left in the ground to monitor pore pressure,KOF files from Geosuite databases
+EMcus001,Outcrop, Custom EMgeo for outcrops,,EMerald
+EMcus002,Pollution,Norwegian miljø,,EMerald
+EMcus003,Manual,Manual interpretation points from EI,,EMerald
+-1,Unknown,,,
