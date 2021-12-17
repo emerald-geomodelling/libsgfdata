@@ -13,7 +13,15 @@ Additionally fields / extensions from [Geotech
 AB](https://static1.squarespace.com/static/565c5cc1e4b05079e4c0fcfb/t/587c984bbf629abac09d265f/1484560476906/6-SWE-CPT-LOG-v5.xx.pdf)
 are supported.
 
-# Usage
+# Command line usage
+
+`libsgfdata` optionally comes with a command line tool `sgfdata`. This
+is installed with `pip install libsgfdata[cmd]`, and provides command
+line access to file format conversion, normalization, dtm raster
+sampling of z coordinates and more. See `sgfdata --help` for more
+information on this.
+
+# Library usage
 
     >>> import libsgfdata
     >>> data = libsgfdata.parse("example.tot")

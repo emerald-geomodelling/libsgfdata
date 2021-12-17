@@ -5,7 +5,7 @@ import os
 
 setuptools.setup(
     name='libsgfdata',
-    version='0.0.9',
+    version='0.0.10',
     description='Parser for Swedish Geotechnical Society data format',
     long_description="""Parser for data from geotechnical field
     investigations in the data format specified in Report 3:2012E from
@@ -39,7 +39,8 @@ setuptools.setup(
     entry_points = {
         'libsgfdata.parsers': ['sgf=libsgfdata.parser:parse'],
         'libsgfdata.dumpers': ['sgf=libsgfdata.dumper:dump'],
-        'libsgfdata.transforms': ['sample_dtm=libsgfdata.cmd_dtm:sample_dtm'],
+        'libsgfdata.transforms': ['sample_dtm=libsgfdata.cmd_dtm:sample_dtm',
+                                  'normalize=libsgfdata.cmd_normalize:cmd_normalize'],
         'console_scripts': ['sgfdata=libsgfdata.cmd:main'],
     }
 )
