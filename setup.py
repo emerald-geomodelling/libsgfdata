@@ -26,4 +26,20 @@ setuptools.setup(
         "python-dateutil",
         "cchardet"
     ],
+    extras_require = {
+        "cmd":  [
+            "click"
+        ],
+        "dtm": [
+            "pyproj",
+            "rasterio"
+        ],
+    },
+
+    entry_points = {
+        'libsgfdata.parsers': ['sgf=libsgfdata.parser:parse'],
+        'libsgfdata.dumpers': ['sgf=libsgfdata.dumper:dump'],
+        'libsgfdata.transforms': ['sample_dtm=libsgfdata.cmd_dtm:sample_dtm'],
+        'console_scripts': ['sgfdata=libsgfdata.cmd:main'],
+    }
 )
