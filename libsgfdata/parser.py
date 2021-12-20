@@ -71,6 +71,8 @@ def _parse_raw_from_file(f, encoding=None):
     block = None
     for row in f:
         row = row.rstrip("\n\r")
+        if not row:
+            continue
         if row == "$":
             blocks = {"£":[], "$":[], "#":[], "€": []}
             sections.append(blocks)
