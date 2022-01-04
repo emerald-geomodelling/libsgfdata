@@ -40,7 +40,8 @@ setuptools.setup(
         'libsgfdata.parsers': ['sgf=libsgfdata.parser:parse'],
         'libsgfdata.dumpers': ['sgf=libsgfdata.dumper:dump'],
         'libsgfdata.transforms': ['sample_dtm=libsgfdata.cmd_dtm:sample_dtm',
-                                  'normalize=libsgfdata.cmd_normalize:cmd_normalize'],
+                                  'normalize=libsgfdata.cmd_normalize:cmd_normalize',
+                                  'depth=libsgfdata.cmd_depth:cmd_depth'],
         'console_scripts': ['sgfdata=libsgfdata.cmd:main'],
     }
 )
