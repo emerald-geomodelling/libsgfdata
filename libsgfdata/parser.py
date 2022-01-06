@@ -43,7 +43,7 @@ def _parse_line(block, line):
             return {}
         return {k:_conv(block, k, v)
                 for k, v in (i.split("=", 1) if "=" in i else [i[0], i[1:]]
-                             for i in re.split(_RE_FIELD_SEP, line))}
+                             for i in re.split(_RE_FIELD_SEP, line) if i)}
     except Exception as e:
         raise Exception("%s: %s" % (e, line))
 
