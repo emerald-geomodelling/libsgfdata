@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 
-import libsgfdata as sgf
+from libsgfdata.parser import _conv
 
 class TestDates:
 
@@ -14,4 +14,4 @@ class TestDates:
         ("main", "KD", "27.06.2014", datetime.date(2014, 6, 27)),
     ])
     def test_dates(self, block, key, date_string, expected_result):
-        assert expected_result == sgf._conv(block, key, date_string)
+        assert expected_result == _conv(block, key, date_string)
