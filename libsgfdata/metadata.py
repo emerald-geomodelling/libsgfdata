@@ -70,14 +70,14 @@ def _conv_datetime(v):
         return v
     
 typemap = pd.DataFrame([
-    {"name": np.nan, "conv": np.nan},
+    {"name": "NAN", "conv": np.nan},
     {"name": "date", "conv": _conv_date},
     {"name": "datetime", "conv": _conv_datetime},
     {"name": "time", "conv": np.nan}
 ]).set_index("name")
 
 for block in block_metadata.values():
-    typemapped = typemap.loc[block.type].set_index(block.index)
+    typemapped = typemap.loc[block.type.fillna("NAN")].set_index(block.index)
     for col in typemapped.columns:
         block[col] = typemapped[col]
 
