@@ -41,7 +41,9 @@ setuptools.setup(
         'libsgfdata.dumpers': ['sgf=libsgfdata.dumper:dump'],
         'libsgfdata.transforms': ['sample_dtm=libsgfdata.cmd_dtm:sample_dtm',
                                   'normalize=libsgfdata.cmd_normalize:cmd_normalize',
-                                  'depth=libsgfdata.cmd_depth:cmd_depth'],
+                                  'depth=libsgfdata.cmd_depth:cmd_depth',
+                                  'depth_to_material=libsgfdata.cmd_depth_to_material:depth_to_material'
+        ],
         'console_scripts': ['sgfdata=libsgfdata.cmd:main'],
     }
 )
