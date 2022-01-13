@@ -14,8 +14,8 @@ def add_transforms(fn):
 @add_transforms
 @click.option('--informat', default="sgf", help='Input format: %s' % ", ".join(parsers.keys()))
 @click.option('--outformat', default="sgf", help='Ouput format: %s' % ", ".join(dumpers.keys()))
-@click.argument('input', type=click.File('rb'))
-@click.argument('output', type=click.File('wb'))
+@click.argument('input', type=str)
+@click.argument('output', type=str)
 def main(informat, outformat, input, output, **kw):
     """Convert between borehole file formats"""
 
