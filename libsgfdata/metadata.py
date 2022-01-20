@@ -66,14 +66,34 @@ def _conv_datetime(v):
     try:
         return dateutil.parser.parse(v, parserinfo=dateutil.parser.parserinfo(dayfirst=True))
     except Exception as e:
-        logger.debug("Unable to parse time %s: %s" %(v,e))
+        logger.debug("Unable to parse datetime %s: %s" %(v,e))
         return v
-    
+
+
+def _conv_time(v):
+    """
+    Time may be in the format of 'HHMM' og 'HHMMSS' with four or six digits.
+    """
+    try:
+        if not v:
+            time = datetime.time()
+        elif len(v) > 4:
+            time = datetime.datetime.strptime(v, "%H%M%S").time()
+        else:
+            time = datetime.datetime.strptime(v, "%H%M").time()
+
+        return time
+    except Exception as e:
+        logger.debug("Unable to parse time %s: %s", v, e)
+        return v
+
 typemap = pd.DataFrame([
     {"name": "NAN", "conv": np.nan},
     {"name": "date", "conv": _conv_date},
     {"name": "datetime", "conv": _conv_datetime},
-    {"name": "time", "conv": np.nan}
+    {"name": "time", "conv": _conv_time},
+    {"name": "seconds", "conv": np.nan},
+    {"name": "milliseconds", "conv": np.nan},
 ]).set_index("name")
 
 for block in block_metadata.values():
