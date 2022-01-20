@@ -29,6 +29,6 @@ class TestParse:
                     reread_block = reread_section[blockname]
                     assert len(orig_block) == len(reread_block), "%s: %s: %s" % (name, idx, blockname)
                     if hasattr(orig_block, "columns"):
-                        assert (orig_block.columns == reread_block.columns).all(), "%s: %s: %s" % (name, idx, blockname)
+                        assert set(orig_block.columns) == set(reread_block.columns), "%s: %s: %s" % (name, idx, blockname)
                     elif hasattr(orig_block, "keys"):
                         assert list(orig_block.keys()) == list(reread_block.keys()), "%s: %s: %s" % (name, idx, blockname)
