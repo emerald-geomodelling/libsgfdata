@@ -2,7 +2,7 @@ code,name,unit,format,remark,type,source,normalization
 A,Feed thrust force,kN,figure,,,sgf,
 AA,Rotary angle,degrees,figure,,,sgf,
 AB,Torque,Nm,figure,,,sgf,
-AD,Time,seconds,figure,,time,sgf,
+AD,Time,seconds,figure,,seconds,sgf,
 AE,Contact pressure,kPa,figure,,,sgf,
 AF,Expansion pressure,kPa,figure,,,sgf,
 AK,Point of time,figure,YYYYMMDDHHMM,,datetime,sgf,
@@ -119,4 +119,4 @@ HX,X-coordinate,,,,,sgf,
 HY,Y-coordinate,,,,,sgf,
 HZ,Z-coordinate,,,,,sgf,
 RN,Random number,,,,,geotechab,
-%,Time of measurement,,,,time,geotechab,AD
+%,Time of measurement,ms,,,milliseconds,geotechab,AD

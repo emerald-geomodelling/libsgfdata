@@ -26,6 +26,7 @@ HB,Löpnummer Sondering,,,,,geotechab,
 HC,Använd programvara,,,,,geotechab,
 HD,Datum för undersökning,,,,date,geotechab,RefDatum
 HG,Grundvattennivå,,,,,geotechab,
+HI,Start time,,figure (HHMMSS or HHMM),,time,geotechab,
 KQ,"Skalfaktor, spetstryck",,,,,geotechab,
 KF,"Skalfaktor, lokal friktion",,,,,geotechab,
 KU,"Skalfaktor, portryck",,,,,geotechab,
