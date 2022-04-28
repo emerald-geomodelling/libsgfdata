@@ -56,3 +56,12 @@ EMcus001,Outcrop, Custom EMgeo for outcrops,,EMerald
 EMcus002,Pollution,Norwegian miljø,,EMerald
 EMcus003,Manual,Manual interpretation points from EI,,EMerald
 -1,Unknown,,,
+total tolk, Total,Guide for the performance of total sounding. (1994),Traditional Swedish and Nordic field methods that are not covered by a European standard
+drt, Rotary pressure sounding,"Guide for performance of rotary pressure sounding. (1982, Rev. 1 1989)"
+enkel, Simple,Norwegian Standard,Geosuite
+fjell,  Total,Guide for the performance of total sounding. (1994),Traditional Swedish and Nordic field methods that are not covered by a European standard
+fjell tolk,  Total,Guide for the performance of total sounding. (1994),Traditional Swedish and Nordic field methods that are not covered by a European standard
+pz,Piezometer,Installation is left in the ground to monitor pore pressure,KOF files from Geosuite databases
+gd,Piezometer,Installation is left in the ground to monitor pore pressure,KOF files from Geosuite databases
+field_vane_test, Field vane test,"“Recommended standard for vane testing”, SGF report 1:93",Traditional Swedish and Nordic field methods that are not covered by a European standard
+cpt, Cpt,Norwegian Standard,Geosuite
