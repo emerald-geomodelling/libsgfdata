@@ -79,8 +79,11 @@ def _parse_raw_from_file(f, encoding=None):
             sections.append(blocks)
         if row in ("£", "$", "#", "€", "#$"):
             block = row
-        elif block in blocks:
-            blocks[block].append(_parse_line(metadata.blocknames[block], row))
+        else:
+            if blocks is None:
+                raise ValueError("First block is not a main block")
+            if block in blocks:
+                blocks[block].append(_parse_line(metadata.blocknames[block], row))
     return sections
 
 def _rename_blocks(sections):
