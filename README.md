@@ -21,7 +21,7 @@ line access to file format conversion, normalization, dtm raster
 sampling of z coordinates and more. See `sgfdata --help` for more
 information on this.
 
-Support for other file formats must be installed separately, see e.g. [libgeosuiteprv](https://github.com/emerald-geomodelling/libgeosuiteprv) and [libgeosuitesnd](https://github.com/emerald-geomodelling/libgeosuitesnd).
+Support for other file formats and online services must be installed separately, see e.g. [libgeosuiteprv](https://github.com/emerald-geomodelling/libgeosuiteprv), [libgeosuitesnd](https://github.com/emerald-geomodelling/libgeosuitesnd) and [libnadagclient](https://github.com/emerald-geomodelling/libnadagclient).
 
 # Library usage
 
