@@ -33,13 +33,15 @@ def sections_to_geotech_set(sections, merge=False, id_col="investigation_point")
     return {"main": main, "data": data, "method": method}
 
 def geotech_set_to_sections(geotech, id_col="investigation_point"):
-    return [{"main": [row.to_dict()],
-      "data": geotech["data"][geotech["data"][id_col] == row[id_col]],
+    return [{"main": [row.to_dict() for idx, row
+                      in geotech["main"][geotech["main"][id_col] == section_id].iterrows()],
+      "data": geotech["data"][geotech["data"][id_col] == section_id],
       "method": [method_row for method_idx, method_row
-                 in geotech["method"][geotech["method"][id_col] == row[id_col]].iterrows()]
-     } for idx, row in geotech["main"].iterrows()]
+                 in geotech["method"][geotech["method"][id_col] == section_id].iterrows()]
+     } for section_id in geotech["main"][id_col].unique()]
 
 _dump_function = dump
+_normalize_function = normalize
 
 class SGFData(object):
     def __new__(cls, *arg, **kw):
@@ -57,6 +59,14 @@ class SGFData(object):
     def dump(self, *arg, **kw):
         _dump_function(self.sections, *arg, **kw)
 
+    def normalize(self):
+        sections = self.sections
+        for section in sections:
+            if "data" in section:
+                section["data"] = section["data"].copy()
+        _normalize_function(sections)
+        return type(self)(sections)
+        
     @property
     def sections(self):
         return geotech_set_to_sections(self.model_dict, id_col=self.id_col)
