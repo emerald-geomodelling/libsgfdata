@@ -25,6 +25,7 @@ def _unconv(b, k, v):
     else:
         return str(v)
 
+#fixme: ensure dumper doesn't allow, or warns about dumping lines that dont have line breaks
 def _dump_line(block, line):
     return ",".join("%s=%s" % (k,_unconv(block, k, v))
                     for k,v in line.items()

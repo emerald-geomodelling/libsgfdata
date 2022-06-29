@@ -34,11 +34,14 @@ def sections_to_geotech_set(sections, merge=False, id_col="investigation_point")
 
 def geotech_set_to_sections(geotech, id_col="investigation_point"):
     return [{"main": [row.to_dict() for idx, row
-                      in geotech["main"][geotech["main"][id_col] == section_id].iterrows()],
-      "data": geotech["data"][geotech["data"][id_col] == section_id],
-      "method": [method_row for method_idx, method_row
-                 in geotech["method"][geotech["method"][id_col] == section_id].iterrows()]
-     } for section_id in geotech["main"][id_col].unique()]
+                      in geotech["main"][geotech["main"][id_col] == section_id].iterrows()]
+                        if "main" in geotech else [],
+             "data": geotech["data"][geotech["data"][id_col] == section_id]
+                        if "data" in geotech else [],
+             "method": [method_row for method_idx, method_row
+                      in geotech["method"][geotech["method"][id_col] == section_id].iterrows()]
+                        if "method" in geotech else []
+            } for section_id in geotech["main"][id_col].unique()]
 
 _dump_function = dump
 _normalize_function = normalize
@@ -47,6 +50,7 @@ class SGFData(object):
     def __new__(cls, *arg, **kw):
         self = object.__new__(cls)
         self.model_dict = {}
+        self.id_col = "investigation_point"
         if arg or kw:
             self.id_col = kw.pop("id_col", "investigation_point")
             if arg and isinstance(arg[0], dict):
