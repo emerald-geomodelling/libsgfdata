@@ -46,6 +46,7 @@ _normalize_function = normalize
 class SGFData(object):
     def __new__(cls, *arg, **kw):
         self = object.__new__(cls)
+        self.model_dict = {}
         if arg or kw:
             self.id_col = kw.pop("id_col", "investigation_point")
             if arg and isinstance(arg[0], dict):
@@ -74,23 +75,38 @@ class SGFData(object):
     @property
     def main(self):
         return self.model_dict["main"]
+
+    @main.setter
+    def main(self, a):
+        self.model_dict["main"] = a
     
     @property
     def data(self):
         return self.model_dict["data"]
 
+    @data.setter
+    def data(self, a):
+        self.model_dict["data"] = a
+
     @property
     def method(self):
         return self.model_dict["method"]
+
+    @method.setter
+    def method(self, a):
+        self.model_dict["method"] = a
 
     def __repr__(self):
         res = [
             "Geotechnical data",
             "===================",
             "Soundings: %s" % (len(self.main),),
-            repr(self.main[["x_coordinate", "y_coordinate"]].describe().loc[["min", "max"]])]
+            "Depths: %s" % (len(self.data),),
+            "===================",
+            repr(self.main[["x_coordinate", "y_coordinate"]].describe().loc[["min", "max"]],)]
 
         for col in ("depth", "feed_thrust_force"):
-            res.append(repr(pd.DataFrame(self.data[col].describe())))
+            if col in self.data.columns:
+                res.append(repr(pd.DataFrame(self.data[col].describe())))
 
         return "\n".join(res)
