@@ -35,12 +35,12 @@ def sections_to_geotech_set(sections, merge=False, id_col="investigation_point")
 def geotech_set_to_sections(geotech, id_col="investigation_point"):
     return [{"main": [row.to_dict() for idx, row
                       in geotech["main"][geotech["main"][id_col] == section_id].iterrows()]
-                        if "main" in geotech else [],
+                     if "main" in geotech else [],
              "data": geotech["data"][geotech["data"][id_col] == section_id]
-                        if "data" in geotech else [],
+                     if "data" in geotech else pd.DataFrame(),
              "method": [method_row for method_idx, method_row
-                      in geotech["method"][geotech["method"][id_col] == section_id].iterrows()]
-                        if "method" in geotech else []
+                        in geotech["method"][geotech["method"][id_col] == section_id].iterrows()]
+                     if "method" in geotech else pd.DataFrame()
             } for section_id in geotech["main"][id_col].unique()]
 
 _dump_function = dump
@@ -78,7 +78,7 @@ class SGFData(object):
         
     @property
     def main(self):
-        return self.model_dict["main"]
+        return self.model_dict.get("main", None)
 
     @main.setter
     def main(self, a):
@@ -86,7 +86,7 @@ class SGFData(object):
     
     @property
     def data(self):
-        return self.model_dict["data"]
+        return self.model_dict.get("data", None)
 
     @data.setter
     def data(self, a):
@@ -94,7 +94,7 @@ class SGFData(object):
 
     @property
     def method(self):
-        return self.model_dict["method"]
+        return self.model_dict.get("method", None)
 
     @method.setter
     def method(self, a):
@@ -104,13 +104,14 @@ class SGFData(object):
         res = [
             "Geotechnical data",
             "===================",
-            "Soundings: %s" % (len(self.main),),
-            "Depths: %s" % (len(self.data),),
+            "Soundings: %s" % (len(self.main) if self.main is not None else 0,),
+            "Depths: %s" % (len(self.data) if self.data is not None else 0,),
             "===================",
-            repr(self.main[["x_coordinate", "y_coordinate"]].describe().loc[["min", "max"]],)]
+            repr(self.main[["x_coordinate", "y_coordinate"]].describe().loc[["min", "max"]],) if self.main is not None else ""]
 
-        for col in ("depth", "feed_thrust_force"):
-            if col in self.data.columns:
-                res.append(repr(pd.DataFrame(self.data[col].describe())))
+        if self.data is not None:
+            for col in ("depth", "feed_thrust_force"):
+                if col in self.data.columns:
+                    res.append(repr(pd.DataFrame(self.data[col].describe())))
 
         return "\n".join(res)

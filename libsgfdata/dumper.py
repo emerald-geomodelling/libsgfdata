@@ -29,7 +29,7 @@ def _unconv(b, k, v):
 def _dump_line(block, line):
     return ",".join("%s=%s" % (k,_unconv(block, k, v))
                     for k,v in line.items()
-                    if str(v) and (not isinstance(v, float) or not np.isnan(v)))
+                    if str(v) and not pd.isnull(v))
 
 def _dump_raw(sections, output_filename=None, *arg, **kw):
     if isinstance(output_filename, str):
