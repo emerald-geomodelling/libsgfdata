@@ -3,10 +3,10 @@ from .parser import parse
 from .dumper import dump
 from .normalizer import normalize
 import pandas as pd
-try:
-    import geopandas as gpd
-except:
-    gpd = None
+import numpy as np
+import logging
+
+logger = logging.getLogger(__name__)
 
 def merge_dicts(*dicts):
     res = {}
@@ -79,7 +79,11 @@ class SGFData(object):
     @property
     def sections(self):
         return geotech_set_to_sections(self.model_dict, id_col=self.id_col)
-        
+    
+    @sections.setter
+    def sections(self, sections):
+        self.model_dict = sections_to_geotech_set(sections, id_col=self.id_col)
+            
     @property
     def main(self):
         return self.model_dict.get("main", None)
@@ -120,6 +124,36 @@ class SGFData(object):
 
         return "\n".join(res)
 
+    def sample_dtm(self, raster, overwrite=True):
+        from . import dtm
+        self.sections = dtm.sample_z_coordinate_from_dtm(self.sections, self.projection, raster=raster, overwrite=overwrite)
+
+    def sample_terrainy_dtm(self, raster_name, overwrite=True):
+        import terrainy
+        import geopandas as gpd
+
+        conn = terrainy.connect(raster_name)
+
+        # Buffer 1m, or we can get problems with boreholes right at the tile boundary...
+        tiles = gpd.GeoDataFrame(
+            geometry=[polygon for x_idx, y_idx, polygon in conn.get_tile_bounds(self.area.buffer(1), 1)],
+            crs=conn.get_crs())
+
+        positions = self.positions.to_crs(tiles.crs)
+        positions["tile"] = -1
+        for idx, tile in enumerate(tiles.geometry):
+            positions.loc[positions.within(tile), "tile"] = idx
+
+        tile_idxs = positions.tile.unique()
+        for idx, tile_idx in enumerate(tile_idxs):
+            logger.info("Working on tile %s of %s" % (idx, len(tile_idxs)))
+            filt = positions.tile == tile_idx
+            xy = np.column_stack((positions.geometry.x, positions.geometry.y))
+            with conn.open_tile(tiles.loc[tile_idx].geometry.bounds, 1) as dataset:
+                positions.loc[filt, "topo"] = [v[0] for v in dataset.sample(xy[filt,:])]    
+
+        self.main["z_coordinate"] = positions.topo
+        
     @property
     def projection(self):
         if "projection" not in self.main.columns:
@@ -131,6 +165,8 @@ class SGFData(object):
     
     @property
     def positions(self):
+        import geopandas as gpd
+        
         projection = self.projection
         if projection is None: raise ValueError("SGF file has boreholes in multiple projections, or projection not specified.")
         
@@ -140,7 +176,10 @@ class SGFData(object):
     @property
     def area(self):
         """Returns the convex hull of all borehole positions"""
-        return self.positions.unary_union.convex_hull
+        import geopandas as gpd
+
+        positions = self.positions
+        return gpd.GeoDataFrame(geometry=[positions.unary_union.convex_hull]).set_crs(self.positions.crs)
     
     @property
     def bounds(self):
