@@ -31,7 +31,8 @@ setuptools.setup(
         ],
         "dtm": [
             "pyproj",
-            "rasterio"
+            "rasterio",
+            "geopandas"
         ],
     },
 

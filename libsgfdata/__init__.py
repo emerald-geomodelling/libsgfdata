@@ -3,6 +3,10 @@ from .parser import parse
 from .dumper import dump
 from .normalizer import normalize
 import pandas as pd
+try:
+    import geopandas as gpd
+except:
+    gpd = None
 
 def merge_dicts(*dicts):
     res = {}
@@ -24,12 +28,12 @@ def sections_to_geotech_set(sections, merge=False, id_col="investigation_point")
     
     data = pd.concat([
         borehole["data"].assign(investigation_point=borehole["main"][0][id_col])
-        for borehole in sections
-        if "data" in borehole])
+        if "data" in borehole else pd.DataFrame([], columns=["investigation_point"])
+        for borehole in sections])
     method = pd.concat([
         pd.DataFrame(borehole["method"]).assign(investigation_point=borehole["main"][0][id_col])
-        for borehole in sections
-        if "method" in borehole])
+        if "method" in borehole else pd.DataFrame([], columns=["investigation_point"])
+        for borehole in sections])
     return {"main": main, "data": data, "method": method}
 
 def geotech_set_to_sections(geotech, id_col="investigation_point"):
@@ -99,7 +103,7 @@ class SGFData(object):
     @method.setter
     def method(self, a):
         self.model_dict["method"] = a
-
+        
     def __repr__(self):
         res = [
             "Geotechnical data",
@@ -115,3 +119,29 @@ class SGFData(object):
                     res.append(repr(pd.DataFrame(self.data[col].describe())))
 
         return "\n".join(res)
+
+    @property
+    def projection(self):
+        if "projection" not in self.main.columns:
+            return None
+        projections = self.main.projection.unique()
+        if len(projections) != 1:
+            return None
+        return int(projections[0])
+    
+    @property
+    def positions(self):
+        projection = self.projection
+        if projection is None: raise ValueError("SGF file has boreholes in multiple projections, or projection not specified.")
+        
+        positions = gpd.GeoDataFrame(geometry=gpd.points_from_xy(self.main.x_coordinate, self.main.y_coordinate))
+        return positions.set_crs(projection)
+
+    @property
+    def area(self):
+        """Returns the convex hull of all borehole positions"""
+        return self.positions.unary_union.convex_hull
+    
+    @property
+    def bounds(self):
+        return self.area.bounds
