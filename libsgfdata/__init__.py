@@ -150,8 +150,8 @@ class SGFData(object):
             filt = positions.tile == tile_idx
             xy = np.column_stack((positions.geometry.x, positions.geometry.y))
             with conn.open_tile(tiles.loc[tile_idx].geometry.bounds, 1) as dataset:
-                positions.loc[filt, "topo"] = [v[0] for v in dataset.sample(xy[filt,:])]    
-
+                positions.loc[filt, "topo"] = [v[0] for v in dataset.sample(xy[filt,:])]
+                
         self.main["z_coordinate"] = positions.topo
         
     @property
@@ -170,7 +170,9 @@ class SGFData(object):
         projection = self.projection
         if projection is None: raise ValueError("SGF file has boreholes in multiple projections, or projection not specified.")
         
-        positions = gpd.GeoDataFrame(geometry=gpd.points_from_xy(self.main.x_coordinate, self.main.y_coordinate))
+        positions = gpd.GeoDataFrame(
+            geometry=gpd.points_from_xy(self.main.x_coordinate, self.main.y_coordinate),
+            index=self.main.index)
         return positions.set_crs(projection)
 
     @property
