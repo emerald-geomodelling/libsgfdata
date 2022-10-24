@@ -12,7 +12,7 @@ def sample_z_coordinate_from_dtm(sections, crs, raster, overwrite=True):
     is false, only add z-coordinate if it is missing."""
     
     if isinstance(raster, str):
-        with rasterio.open(dtm) as f:
+        with rasterio.open(raster) as f:
             _sample_z_coordinate_from_dtm(sections, crs, f, overwrite)
     else:
         _sample_z_coordinate_from_dtm(sections, crs, raster, overwrite)
