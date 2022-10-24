@@ -132,6 +132,8 @@ class SGFData(object):
         import terrainy
         import geopandas as gpd
 
+        assert self.main
+
         conn = terrainy.connect(raster_name)
 
         # Buffer 1m, or we can get problems with boreholes right at the tile boundary...
@@ -166,6 +168,8 @@ class SGFData(object):
     @property
     def positions(self):
         import geopandas as gpd
+
+        assert self.main
         
         projection = self.projection
         if projection is None: raise ValueError("SGF file has boreholes in multiple projections, or projection not specified.")
