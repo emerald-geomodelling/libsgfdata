@@ -10,7 +10,6 @@ import datetime
 import logging
 from pathlib import Path
 import sys
-import cchardet as chardet
 from . import metadata
 
 logger = logging.getLogger(__name__)
