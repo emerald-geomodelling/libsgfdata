@@ -10,7 +10,7 @@ import datetime
 import logging
 from pathlib import Path
 import sys
-import cchardet as chardet
+from  charset_normalizer import detect
 from . import normalizer
 from . import metadata
 
@@ -59,7 +59,7 @@ def _parse_raw(input_filename, *arg, **kw):
 def _parse_raw_from_file(f, encoding=None):
     if encoding is None:
         sample = f.read(4096)
-        detection = chardet.detect(sample)
+        detection = detect(sample)
         if detection["confidence"] < 0.85:
             encoding = 'latin-1'
         else:

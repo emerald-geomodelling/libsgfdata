@@ -23,7 +23,7 @@ setuptools.setup(
         "pandas",
         "python-slugify",
         "python-dateutil",
-        "cchardet"
+        "charset-normalizer"
     ],
     extras_require = {
         "cmd":  [
