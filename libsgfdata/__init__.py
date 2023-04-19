@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import logging
 import copy
+import uuid
 
 logger = logging.getLogger(__name__)
 
@@ -16,26 +17,34 @@ def merge_dicts(*dicts):
     return res
 
 def sections_to_geotech_set(sections, merge=False, id_col="investigation_point"):
-    unique_ids = set([borehole["main"][0][id_col] for borehole in sections])
-    assert len(unique_ids) == len(sections), "%s is not unique for each borehole" % id_col
-
-    if merge:
-        main = pd.DataFrame([merge_dicts(*borehole["main"]) for borehole in sections])
-    else:
-        main = pd.concat([
-            pd.DataFrame(borehole["main"]).assign(**{id_col: borehole["main"][0][id_col]})
-            for borehole in sections
-            if "main" in borehole])
+    mains = []
+    datas = []
+    methods = []
+    for borehole in sections:
+        if "main" not in borehole: borehole["main"] = []
+        if not len(borehole["main"]): borehole["main"].append({})
+        if id_col in borehole["main"][0]:
+            investigation_point = borehole["main"][0][id_col]
+        else:
+            investigation_point = str(uuid.uuid4())
     
-    data = pd.concat([
-        borehole["data"].assign(investigation_point=borehole["main"][0][id_col])
-        if "data" in borehole else pd.DataFrame([], columns=["investigation_point"])
-        for borehole in sections])
-    method = pd.concat([
-        pd.DataFrame(borehole["method"]).assign(investigation_point=borehole["main"][0][id_col])
-        if "method" in borehole else pd.DataFrame([], columns=["investigation_point"])
-        for borehole in sections])
-    return {"main": main, "data": data, "method": method}
+        if merge:
+            main = pd.DataFrame([merge_dicts(*borehole["main"])])
+        else:
+            main = pd.DataFrame(borehole["main"])
+
+        mains.append(main.assign(**{id_col: investigation_point}))
+        datas.append(pd.DataFrame(borehole["data"]).assign(**{id_col: investigation_point}))
+        methods.append(pd.DataFrame(borehole["method"]).assign(**{id_col: investigation_point}))
+
+    mains = pd.concat(mains)
+    datas = pd.concat(datas)
+    methods = pd.concat(methods)
+    
+    unique_ids = set(mains[id_col])
+    assert len(unique_ids) == len(sections), "%s is not unique for each borehole" % id_col
+        
+    return {"main": mains, "data": datas, "method": methods}
 
 def geotech_set_to_sections(geotech, id_col="investigation_point"):
     return [{"main": [row.to_dict() for idx, row
