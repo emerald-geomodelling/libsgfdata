@@ -151,7 +151,7 @@ def _rename_values_data_flags(sections):
             section["data"][key] = labels.loc[codes, "ident"].values
             
 def parse(*arg, **kw):
-    normalize = kw.pop("normalize", False)
+    assert not kw.pop("normalize", False), "Normalization is now only supported by SGFData wrapper objects."
     sections = _parse_raw(*arg, **kw)
     _rename_blocks(sections)
     _rename_main(sections)
@@ -161,6 +161,4 @@ def parse(*arg, **kw):
     _rename_data_columns(sections)
     _rename_values_comments(sections)
     _rename_values_data_flags(sections)
-    if normalize:
-        normalizer.normalize(sections)
     return sections

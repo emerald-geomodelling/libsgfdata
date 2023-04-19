@@ -5,6 +5,7 @@ from .normalizer import normalize
 import pandas as pd
 import numpy as np
 import logging
+import copy
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +53,7 @@ _normalize_function = normalize
 
 class SGFData(object):
     def __new__(cls, *arg, **kw):
+        normalize = kw.pop("normalize", False)
         self = object.__new__(cls)
         self.model_dict = {}
         self.id_col = "investigation_point"
@@ -63,18 +65,17 @@ class SGFData(object):
                 self.model_dict = sections_to_geotech_set(arg[0], id_col=self.id_col)
             else:
                 self.model_dict = sections_to_geotech_set(parse(*arg, **kw), id_col=self.id_col)
+        if normalize:
+            self = self.normalize()
         return self
 
     def dump(self, *arg, **kw):
         _dump_function(self.sections, *arg, **kw)
 
     def normalize(self):
-        sections = self.sections
-        for section in sections:
-            if "data" in section:
-                section["data"] = section["data"].copy()
-        _normalize_function(sections)
-        return type(self)(sections)
+        res = copy.deepcopy(self)
+        _normalize_function(res)
+        return res
         
     @property
     def sections(self):
