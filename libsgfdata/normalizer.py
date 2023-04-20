@@ -10,12 +10,12 @@ def project(innproj, utproj, xinn, yinn):
     return pyproj.Transformer.from_crs(
         int(innproj), int(utproj), always_xy=True).transform(xinn, yinn)
 
-def normalize_coordinates(sgf, project_crs=None, **kw):
+def normalize_coordinates(sgf, projection=None, **kw):
     if "projection" not in sgf.main.columns:
         return
     
-    if project_crs is None:
-        project_crs = sgf.main.projection.iloc[0]
+    if projection is None:
+        projection = sgf.main.projection.iloc[0]
     
     sgf.main = sgf.main.rename(columns={
         "x_coordinate":"x_orig",
@@ -23,7 +23,8 @@ def normalize_coordinates(sgf, project_crs=None, **kw):
 
     def reproject(df):
         src = df.projection.iloc[0]
-        df["x_coordinate"], df["y_coordinate"] = project(src, project_crs, df["x_orig"].values, df["y_orig"].values)
+        df["projection"] = projection
+        df["x_coordinate"], df["y_coordinate"] = project(src, projection, df["x_orig"].values, df["y_orig"].values)
         df["x_web"], df["y_web"] = project(src, 3857, df["x_orig"].values, df["y_orig"].values)
         df["lon"], df["lat"] = project(src, 4326, df["x_orig"].values, df["y_orig"].values)
         return df
@@ -45,8 +46,13 @@ def normalize_columns(sgf):
             ~metadata.block_metadata[blockname].normalization.isna()
         ].set_index("ident").normalization
         normalization = metadata.block_metadata[blockname].loc[normalization].set_index(normalization.index).ident
+
+        for src, dst in normalization.to_dict().items():
+            filt = ~pd.isnull(block[src]) 
+            block.loc[filt, dst] = block.loc[filt, src]
+            block.drop(columns=[src], inplace=True)
         
-        block.rename(columns=normalization.to_dict(), inplace=True)
+        #block.rename(columns=normalization.to_dict(), inplace=True)
 
 def normalize_depth(sgf):
     for col in ("depth", "depth_min", "depth_max"):
@@ -72,10 +78,26 @@ def normalize_depth(sgf):
                                  sgf.main.depth)
     
     sgf.main["depth_max_drilled"] = last_depth.last_depth
+
+def normalize_id(sgf):
+    sgf.main[sgf.id_col] = sgf.main[sgf.id_col].astype(str)
+    sgf.data[sgf.id_col] = sgf.data[sgf.id_col].astype(str)
+    sgf.method[sgf.id_col] = sgf.method[sgf.id_col].astype(str)
     
+def normalize_order(sgf):
+    sgf.main.sort_values([sgf.id_col], inplace=True)
+    sgf.data.sort_values([sgf.id_col, "depth"], inplace=True)
+
+    sgf.main.reset_index(inplace=True, drop=True)
+    sgf.data.reset_index(inplace=True, drop=True)
+    sgf.method.reset_index(inplace=True, drop=True)
     
-def normalize(sgf, **kw):
+def normalize(sgf, sort=False, **kw):
     normalize_columns(sgf)
     normalize_stop_code(sgf)
     normalize_depth(sgf)
     normalize_coordinates(sgf, **kw)
+    normalize_id(sgf)
+    if sort:
+        normalize_order(sgf)
+        

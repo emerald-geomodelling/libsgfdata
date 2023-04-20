@@ -2,6 +2,7 @@ from .metadata import main, method, data, methods, comments
 from .parser import parse
 from .dumper import dump
 from .normalizer import normalize
+from .validate import validate
 import pandas as pd
 import numpy as np
 import logging
@@ -59,10 +60,13 @@ def geotech_set_to_sections(geotech, id_col="investigation_point"):
 
 _dump_function = dump
 _normalize_function = normalize
+_validate_function = validate
 
 class SGFData(object):
     def __new__(cls, *arg, **kw):
         normalize = kw.pop("normalize", False)
+        encoding = kw.pop("encoding", None)
+        validate = kw.pop("validate", False)
         self = object.__new__(cls)
         self.model_dict = {}
         self.id_col = "investigation_point"
@@ -72,20 +76,30 @@ class SGFData(object):
                 self.model_dict = arg[0]
             elif arg and isinstance(arg[0], list):
                 self.model_dict = sections_to_geotech_set(arg[0], id_col=self.id_col)
+            elif arg and isinstance(arg[0], SGFData):
+                for block in ("main", "data", "method"):
+                    self.model_dict[block] = pd.concat([
+                        argi.model_dict[block]
+                        for argi in arg])
             else:
-                self.model_dict = sections_to_geotech_set(parse(*arg, **kw), id_col=self.id_col)
+                self.model_dict = sections_to_geotech_set(parse(*arg, encoding=encoding), id_col=self.id_col)
         if normalize:
-            self = self.normalize()
+            self = self.normalize(**kw)
+        if validate:
+            self.validate(**kw)
         return self
 
     def dump(self, *arg, **kw):
         _dump_function(self.sections, *arg, **kw)
 
-    def normalize(self):
+    def normalize(self, **kw):
         res = copy.deepcopy(self)
-        _normalize_function(res)
+        _normalize_function(res, **kw)
         return res
-        
+
+    def validate(self, **kw):
+        _validate_function(self)
+    
     @property
     def sections(self):
         return geotech_set_to_sections(self.model_dict, id_col=self.id_col)

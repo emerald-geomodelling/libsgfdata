@@ -50,6 +50,8 @@ with pkg_resources.resource_stream("libsgfdata", "data-flags.csv") as f:
 # But seriously, why don't we all just use the ISO format?
 
 def _conv_date(v):
+    if pd.isnull(v):
+        return pd.NaT
     try:
         if len(v) >= 8:
             return dateutil.parser.isoparse(v).date()
@@ -90,6 +92,8 @@ def _conv_time(v):
 typemap = pd.DataFrame([
     {"name": "NAN", "conv": np.nan},
     {"name": "date", "conv": _conv_date},
+    {"name": "datum_for_undersokning", "conv": _conv_date},
+    {"name": "date_reference_measurement", "conv": _conv_date},
     {"name": "datetime", "conv": _conv_datetime},
     {"name": "time", "conv": _conv_time},
     {"name": "seconds", "conv": np.nan},
