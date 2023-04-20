@@ -47,8 +47,35 @@ def normalize_columns(sgf):
         normalization = metadata.block_metadata[blockname].loc[normalization].set_index(normalization.index).ident
         
         block.rename(columns=normalization.to_dict(), inplace=True)
+
+def normalize_depth(sgf):
+    for col in ("depth", "depth_min", "depth_max"):
+        if col not in sgf.main.columns:
+            sgf.main[col] = np.nan
+    
+    sgf.data["depth"] = sgf.data.depth.abs()
+    
+    last_depth = sgf.main[["investigation_point"]].merge(
+        sgf.data.groupby(sgf.id_col).depth.max().rename("last_depth"),
+        left_on="investigation_point", right_index=True)
+    
+    sgf.main["depth_min"] = np.where(pd.isnull(sgf.main.depth_min),
+                                     last_depth.last_depth,
+                                     sgf.main.depth_min)
+    sgf.main["depth_max"] = np.where(pd.isnull(sgf.main.depth_max),
+                                     np.where(sgf.main.stop_code == "stop_against_presumed_rock",
+                                              last_depth.last_depth,
+                                              np.nan),
+                                     sgf.main.depth_max)
+    sgf.main["depth"] = np.where(pd.isnull(sgf.main.depth) & (sgf.main.depth_min == sgf.main.depth_max),
+                                 sgf.main.depth_max,
+                                 sgf.main.depth)
+    
+    sgf.main["depth_max_drilled"] = last_depth.last_depth
+    
     
 def normalize(sgf, **kw):
     normalize_columns(sgf)
     normalize_stop_code(sgf)
+    normalize_depth(sgf)
     normalize_coordinates(sgf, **kw)
