@@ -65,6 +65,8 @@ def _conv_date(v):
         return v
 
 def _conv_datetime(v):
+    if pd.isnull(v):
+        return pd.NaT
     try:
         return dateutil.parser.parse(v, parserinfo=dateutil.parser.parserinfo(dayfirst=True))
     except Exception as e:
