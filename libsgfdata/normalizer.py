@@ -36,6 +36,7 @@ def normalize_coordinates(sgf, projection=None, **kw):
     sgf.main["projection"] = projection
 
 def normalize_stop_code(sgf):
+    if sgf.data is None: return
     if "comments" not in sgf.data.columns: return
     if "stop_code" not in sgf.main.columns:
         data.main["stop_code"] = "no_comment"
@@ -62,6 +63,10 @@ def normalize_columns(sgf):
         #block.rename(columns=normalization.to_dict(), inplace=True)
 
 def normalize_depth(sgf):
+    if sgf.data is None: return
+    if not len(sgf.data): return
+    if "depth" not in sgf.data.columns: return
+    
     for col in ("depth", "depth_min", "depth_max"):
         if col not in sgf.main.columns:
             sgf.main[col] = np.nan
