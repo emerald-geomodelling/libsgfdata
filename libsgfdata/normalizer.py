@@ -16,12 +16,11 @@ def normalize_coordinates(sgf, projection=None, **kw):
     
     if projection is None:
         projection = sgf.main.projection.iloc[0]
-
+        
     if "projection_orig" not in sgf.main.columns:
         sgf.main["projection_orig"] = sgf.main.projection
-        sgf.main = sgf.main.rename(columns={
-            "x_coordinate":"x_orig",
-            "y_coordinate":"y_orig"})
+        sgf.main["x_orig"] = sgf.main.x_coordinate
+        sgf.main["y_orig"] = sgf.main.y_coordinate
 
     # FIXME: Don't reproject unnecessarily
         
