@@ -97,7 +97,13 @@ def normalize_id(sgf):
     
 def normalize_order(sgf):
     sgf.main.sort_values([sgf.id_col], inplace=True)
-    sgf.data.sort_values([sgf.id_col, "depth"], inplace=True)
+    sort_cols = [sgf.id_col]
+
+    if "start_depth" in sgf.data.columns:
+        sort_cols.append("start_depth")
+    if "depth" in sgf.data.columns:
+        sort_cols.append("depth")
+    sgf.data.sort_values(sort_cols, inplace=True)
 
     sgf.main.reset_index(inplace=True, drop=True)
     if sgf.data is not None: sgf.data.reset_index(inplace=True, drop=True)
