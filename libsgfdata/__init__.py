@@ -78,9 +78,12 @@ class SGFData(object):
                 self.model_dict = sections_to_geotech_set(arg[0], id_col=self.id_col)
             elif arg and isinstance(arg[0], SGFData):
                 for block in ("main", "data", "method"):
-                    self.model_dict[block] = pd.concat([
+                    blockdata = [
                         argi.model_dict[block]
-                        for argi in arg])
+                        for argi in arg
+                        if block in argi.model_dict]
+                    if blockdata:
+                        self.model_dict[block] = pd.concat(blockdata)
             else:
                 self.model_dict = sections_to_geotech_set(parse(*arg, encoding=encoding), id_col=self.id_col)
         if normalize:

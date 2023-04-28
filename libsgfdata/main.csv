@@ -42,3 +42,6 @@ EZTE,Tid nollinläsning efter sondering (Nova-sond),,,,,geotechab,
 CSN,Serienummer CPT-sond,,,,,geotechab,
 CRS,Projection,,,,,emerald,
 TOPO,Topo,m,Figure,,,emerald,HZ
+X,X,m,Figure,,,emerald,HX
+Y,Y,m,Figure,,,emerald,HY
+Z,Z,m,Figure,,,emerald,HZ
