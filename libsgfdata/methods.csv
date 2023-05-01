@@ -66,3 +66,4 @@ gd,Piezometer,Installation is left in the ground to monitor pore pressure,KOF fi
 field_vane_test, Field vane test,"“Recommended standard for vane testing”, SGF report 1:93",Traditional Swedish and Nordic field methods that are not covered by a European standard,
 cpt, Cpt,Norwegian Standard,Geosuite,
 sm,SPT rotary mix,,,EMerald
+auger,Auger,Brazilian soil classification,,
