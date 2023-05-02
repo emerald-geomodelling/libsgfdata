@@ -83,7 +83,7 @@ class SGFData(object):
                         for argi in arg
                         if block in argi.model_dict]
                     if blockdata:
-                        self.model_dict[block] = pd.concat(blockdata)
+                        self.model_dict[block] = pd.concat(blockdata).reset_index(drop=True)
             else:
                 self.model_dict = sections_to_geotech_set(parse(*arg, encoding=encoding), id_col=self.id_col)
         if normalize:
