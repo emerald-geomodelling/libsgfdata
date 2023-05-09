@@ -39,6 +39,10 @@ def normalize_stop_code(sgf):
     if "comments" not in sgf.data.columns: return
     if "stop_code" not in sgf.main.columns:
         sgf.main["stop_code"] = "no_comment"
+    if ("title" in sgf.data.columns) & ("investigation_point" not in sgf.data.columns):
+        sgf.id_col = "title"
+        raise Warning("investigation_point not in sgf.data.columns, setting sgf.id_col as 'title'")
+
     last_comment = sgf.main[["investigation_point"]].merge(
         sgf.data.groupby(sgf.id_col).comments.last().rename("last_comment"),
         left_on="investigation_point", right_index=True, how="left")
