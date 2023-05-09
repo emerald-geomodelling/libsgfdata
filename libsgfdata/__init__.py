@@ -23,9 +23,11 @@ def sections_to_geotech_set(sections, merge=False, id_col="investigation_point")
     methods = []
     for borehole in sections:
         if "main" not in borehole: borehole["main"] = []
+        if "data" not in borehole: borehole["data"] = []
         if not len(borehole["main"]): borehole["main"].append({})
         if id_col in borehole["main"][0]:
             investigation_point = borehole["main"][0][id_col]
+            print("Parsing: ", investigation_point)
         else:
             investigation_point = str(uuid.uuid4())
     
