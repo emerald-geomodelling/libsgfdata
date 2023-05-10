@@ -75,7 +75,7 @@ def normalize_depth(sgf):
             sgf.main[col] = np.nan
     
     sgf.data["depth"] = sgf.data.depth.abs()
-    
+    #fixme: EJH thinks this should be end_depth, not depth
     last_depth = sgf.main[["investigation_point"]].merge(
         sgf.data.groupby(sgf.id_col).depth.max().rename("last_depth"),
         left_on="investigation_point", right_index=True, how="left")
