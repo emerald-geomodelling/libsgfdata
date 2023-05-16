@@ -41,7 +41,7 @@ def normalize_stop_code(sgf):
         sgf.main["stop_code"] = "no_comment"
     if ("title" in sgf.data.columns) & ("investigation_point" not in sgf.data.columns):
         sgf.id_col = "title"
-        raise Warning("investigation_point not in sgf.data.columns, setting sgf.id_col as 'title'")
+        print("investigation_point not in sgf.data.columns, setting sgf.id_col as 'title'")
 
     last_comment = sgf.main[["investigation_point"]].merge(
         sgf.data.groupby(sgf.id_col).comments.last().rename("last_comment"),
@@ -65,6 +65,8 @@ def normalize_columns(sgf):
         
         #block.rename(columns=normalization.to_dict(), inplace=True)
 
+
+    #fixme: Rename this to be more obvious it is only a summary of sgf.data information, in sgf.main, e.g. normalize_summarize_depth
 def normalize_depth(sgf):
     if sgf.data is None: return
     if not len(sgf.data): return
@@ -76,6 +78,7 @@ def normalize_depth(sgf):
     
     sgf.data["depth"] = sgf.data.depth.abs()
     #fixme: EJH thinks this should be end_depth, not depth
+    # Add a handler for if end_depth is in columns, choose max of two
     last_depth = sgf.main[["investigation_point"]].merge(
         sgf.data.groupby(sgf.id_col).depth.max().rename("last_depth"),
         left_on="investigation_point", right_index=True, how="left")
@@ -114,6 +117,11 @@ def normalize_order(sgf):
     if sgf.method is not None: sgf.method.reset_index(inplace=True, drop=True)
     
 def normalize(sgf, sort=False, **kw):
+    if "investigation_point" not in sgf.main.columns:
+        sgf.main["investigation_point"] = sgf.main.title.copy()
+    if "investigation_point" not in sgf.data.columns:
+        sgf.data["investigation_point"] = sgf.data.title.copy()
+
     normalize_columns(sgf)
     normalize_stop_code(sgf)
     normalize_depth(sgf)
