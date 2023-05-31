@@ -98,6 +98,47 @@ class SGFData(object):
         _dump_function(self.sections, *arg, **kw)
 
     def normalize(self, **kw):
+        """Normalizes column names, column dtypes, stop code names,
+        depth columns and coordinates.
+
+
+        Column names:
+        Normalized according to the "normalization" column of the
+        libsgfdata.metadata.block_metadata[blockname] for each block
+        (main, data, method).
+
+
+        Stop codes:
+        main.stop_code is set to the last data.comments
+
+
+        Depth columns:
+        All depths are positive, and deeper positions have higher values.
+
+        main.depth_min contains the minimum (shallowest) depth of a
+                       bedrock surface if present and known.
+
+        main.depth_max contains the maximum (deepest) depth of a
+                       bedrock surface if present and known.
+
+        main.depth     contains the depth of a bedrock surface if present
+                       and known. depth overrides depth_min and depth_max.
+
+        If summarize_depth is True (the default), depth_min, depth_max
+        and depth are calculated from data.depth/data.end_depth if not
+        already set to a non NaN value.
+
+        main.depth_max_drilled contains the deepest position acquired.
+
+
+        Coordinates: 
+        Normalized to a supplied "projection" epsg code. Old
+        coordinates are stored in "x_orig","y_orig", old projection in
+        "projection_orig". In addition, coordinates are reprojected to
+        WGS84 in "lat","lon", and to spherical mercator in
+        "x_web","y_web".
+
+        """
         res = copy.deepcopy(self)
         _normalize_function(res, **kw)
         return res

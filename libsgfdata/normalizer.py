@@ -66,8 +66,7 @@ def normalize_columns(sgf):
         #block.rename(columns=normalization.to_dict(), inplace=True)
 
 
-    #fixme: Rename this to be more obvious it is only a summary of sgf.data information, in sgf.main, e.g. normalize_summarize_depth
-def normalize_depth(sgf):
+def normalize_depth(sgf, summarize_depth=True):
     if sgf.data is None: return
     if not len(sgf.data): return
     if "depth" not in sgf.data.columns: return
@@ -76,24 +75,35 @@ def normalize_depth(sgf):
         if col not in sgf.main.columns:
             sgf.main[col] = np.nan
     
-    sgf.data["depth"] = sgf.data.depth.abs()
-    #fixme: EJH thinks this should be end_depth, not depth
-    # Add a handler for if end_depth is in columns, choose max of two
+    last_depth = []
+    if "depth" in sgf.data.columns:
+        sgf.data["depth"] = sgf.data.depth.abs()
+        last_depth.append(sgf.data.groupby(sgf.id_col).depth.max().rename("last_depth"))
+    if "start_depth" in sgf.data.columns:
+        sgf.data["start_depth"] = sgf.data.start_depth.abs()
+    if "end_depth" in sgf.data.columns:
+        sgf.data["end_depth"] = sgf.data.end_depth.abs()
+        last_depth.append(sgf.data.groupby(sgf.id_col).end_depth.max().rename("last_depth"))
+    if len(last_depth) > 1:
+        last_depth[0] = np.where((last_depth[0] > last_depth[1]) | pd.isnull(last_depth[1]), last_depth[0], last_depth[1]) 
+    last_depth = last_depth[0]
+
     last_depth = sgf.main[["investigation_point"]].merge(
-        sgf.data.groupby(sgf.id_col).depth.max().rename("last_depth"),
+        last_depth,
         left_on="investigation_point", right_index=True, how="left")
-    
-    sgf.main["depth_min"] = np.where(pd.isnull(sgf.main.depth_min),
-                                     last_depth.last_depth,
-                                     sgf.main.depth_min)
-    sgf.main["depth_max"] = np.where(pd.isnull(sgf.main.depth_max),
-                                     np.where(sgf.main.stop_code == "stop_against_presumed_rock",
-                                              last_depth.last_depth,
-                                              np.nan),
-                                     sgf.main.depth_max)
-    sgf.main["depth"] = np.where(pd.isnull(sgf.main.depth) & (sgf.main.depth_min == sgf.main.depth_max),
-                                 sgf.main.depth_max,
-                                 sgf.main.depth)
+
+    if summarize_depth:
+        sgf.main["depth_min"] = np.where(pd.isnull(sgf.main.depth_min),
+                                         last_depth.last_depth,
+                                         sgf.main.depth_min)
+        sgf.main["depth_max"] = np.where(pd.isnull(sgf.main.depth_max),
+                                         np.where(sgf.main.stop_code == "stop_against_presumed_rock",
+                                                  last_depth.last_depth,
+                                                  np.nan),
+                                         sgf.main.depth_max)
+        sgf.main["depth"] = np.where(pd.isnull(sgf.main.depth) & (sgf.main.depth_min == sgf.main.depth_max),
+                                     sgf.main.depth_max,
+                                     sgf.main.depth)
     
     sgf.main["depth_max_drilled"] = last_depth.last_depth
 
@@ -116,7 +126,7 @@ def normalize_order(sgf):
     if sgf.data is not None: sgf.data.reset_index(inplace=True, drop=True)
     if sgf.method is not None: sgf.method.reset_index(inplace=True, drop=True)
     
-def normalize(sgf, sort=False, **kw):
+def normalize(sgf, sort=False, summarize_depth=True, **kw):    
     if "investigation_point" not in sgf.main.columns:
         sgf.main["investigation_point"] = sgf.main.title.copy()
     if "investigation_point" not in sgf.data.columns:
@@ -124,7 +134,7 @@ def normalize(sgf, sort=False, **kw):
 
     normalize_columns(sgf)
     normalize_stop_code(sgf)
-    normalize_depth(sgf)
+    normalize_depth(sgf, summarize_depth=summarize_depth)
     normalize_coordinates(sgf, **kw)
     normalize_id(sgf)
     if sort:
