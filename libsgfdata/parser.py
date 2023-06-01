@@ -71,7 +71,7 @@ def _parse_raw_from_file(f, encoding=None):
     blocks = None
     block = None
     for row in f:
-        row = row.rstrip("\n\r")
+        row = row.rstrip()
         if not row:
             continue
         if row == "$":
