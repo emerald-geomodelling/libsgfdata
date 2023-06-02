@@ -75,19 +75,13 @@ def normalize_depth(sgf, summarize_depth=True):
         if col not in sgf.main.columns:
             sgf.main[col] = np.nan
     
-    last_depth = []
-    if "depth" in sgf.data.columns:
-        sgf.data["depth"] = sgf.data.depth.abs()
-        last_depth.append(sgf.data.groupby(sgf.id_col).depth.max().rename("last_depth"))
-    if "start_depth" in sgf.data.columns:
-        sgf.data["start_depth"] = sgf.data.start_depth.abs()
-    if "end_depth" in sgf.data.columns:
-        sgf.data["end_depth"] = sgf.data.end_depth.abs()
-        last_depth.append(sgf.data.groupby(sgf.id_col).end_depth.max().rename("last_depth"))
-    if len(last_depth) > 1:
-        last_depth[0] = np.where((last_depth[0] > last_depth[1]) | pd.isnull(last_depth[1]), last_depth[0], last_depth[1]) 
-    last_depth = last_depth[0]
-
+    depth_cols = []
+    for col in ("depth", "start_depth", "end_depth"):
+        if col in sgf.data.columns:
+            sgf.data[col] = sgf.data[col].abs()
+            depth_cols.append(col)
+    agg_max = sgf.data.loc[:,[sgf.id_col]+depth_cols].groupby(sgf.id_col).agg('max')
+    last_depth = agg_max.max(1).rename('last_depth')
     last_depth = sgf.main[["investigation_point"]].merge(
         last_depth,
         left_on="investigation_point", right_index=True, how="left")
@@ -105,7 +99,7 @@ def normalize_depth(sgf, summarize_depth=True):
                                      sgf.main.depth_max,
                                      sgf.main.depth)
     
-    sgf.main["depth_max_drilled"] = last_depth.last_depth
+    sgf.main.loc[last_depth.index, "depth_max_drilled"] = last_depth.last_depth
 
 def normalize_id(sgf):
     sgf.main[sgf.id_col] = sgf.main[sgf.id_col].astype(str)
