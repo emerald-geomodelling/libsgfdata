@@ -42,9 +42,9 @@ def sections_to_geotech_set(sections, merge=False, id_col="investigation_point")
         datas.append(pd.DataFrame(borehole["data"]).assign(**{id_col: investigation_point}))
         methods.append(pd.DataFrame(borehole["method"]).assign(**{id_col: investigation_point}))
 
-    mains = pd.concat(mains)
-    datas = pd.concat(datas)
-    methods = pd.concat(methods)
+    mains = pd.concat(mains, ignore_index=True)
+    datas = pd.concat(datas, ignore_index=True)
+    methods = pd.concat(methods, ignore_index=True)
     
     unique_ids = set(mains[id_col])
     assert len(unique_ids) == len(sections), "%s is not unique for each borehole" % id_col
