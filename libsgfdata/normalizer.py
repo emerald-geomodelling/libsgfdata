@@ -69,7 +69,7 @@ def normalize_columns(sgf):
 def normalize_depth(sgf, summarize_depth=True):
     if sgf.data is None: return
     if not len(sgf.data): return
-    if "depth" not in sgf.data.columns: return
+    if not np.any([c in sgf.data.columns for c in ['depth','start_depth','end_depth']]): return
     
     for col in ("depth", "depth_min", "depth_max"):
         if col not in sgf.main.columns:
