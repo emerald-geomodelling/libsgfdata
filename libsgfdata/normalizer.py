@@ -65,18 +65,9 @@ def normalize_columns(sgf):
         
         #block.rename(columns=normalization.to_dict(), inplace=True)
 
-
-def normalize_depth(sgf, summarize_depth=True):
-    if sgf.data is None: return
-    if not len(sgf.data): return
-    if not np.any([c in sgf.data.columns for c in ['depth','start_depth','end_depth']]): return
-    
-    for col in ("depth", "depth_min", "depth_max"):
-        if col not in sgf.main.columns:
-            sgf.main[col] = np.nan
-    
+def compute_maximum_depth(sgf, data_cols = ("depth", "start_depth", "end_depth")):
     depth_cols = []
-    for col in ("depth", "start_depth", "end_depth"):
+    for col in data_cols:
         if col in sgf.data.columns:
             sgf.data[col] = sgf.data[col].abs()
             depth_cols.append(col)
@@ -86,7 +77,23 @@ def normalize_depth(sgf, summarize_depth=True):
         last_depth,
         left_on="investigation_point", right_index=True, how="left")
 
+    return last_depth
+
+def normalize_depth(sgf, summarize_depth=True, data_cols = ("depth", "depth_min", "depth_max")):
+    if sgf.data is None: return
+    if not len(sgf.data): return
+    if not np.any([c in sgf.data.columns for c in data_cols]): return
+    
+    for col in data_cols:
+        if col not in sgf.main.columns:
+            sgf.main[col] = np.nan
+
+
+
+
     if summarize_depth:
+        last_depth = compute_maximum_depth(sgf, data_cols=data_cols)
+
         sgf.main["depth_min"] = np.where(pd.isnull(sgf.main.depth_min),
                                          last_depth.last_depth,
                                          sgf.main.depth_min)
@@ -99,7 +106,7 @@ def normalize_depth(sgf, summarize_depth=True):
                                      sgf.main.depth_max,
                                      sgf.main.depth)
     
-    sgf.main.loc[last_depth.index, "depth_max_drilled"] = last_depth.last_depth
+        sgf.main.loc[last_depth.index, "depth_max_drilled"] = last_depth.last_depth
 
 def normalize_id(sgf):
     sgf.main[sgf.id_col] = sgf.main[sgf.id_col].astype(str)
