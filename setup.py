@@ -4,7 +4,7 @@ import setuptools
 
 setuptools.setup(
     name='libsgfdata',
-    version='0.0.20',
+    version='0.0.21',
     description='Parser for Swedish Geotechnical Society data format',
     long_description="""Parser for data from geotechnical field
     investigations in the data format specified in Report 3:2012E from
