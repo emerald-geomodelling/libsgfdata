@@ -79,17 +79,16 @@ def compute_maximum_depth(sgf, data_cols = ("depth", "start_depth", "end_depth")
 
     return last_depth
 
-def normalize_depth(sgf, summarize_depth=True, data_cols = ("depth", "depth_min", "depth_max")):
-    if sgf.data is None: return
-    if not len(sgf.data): return
-    if not np.any([c in sgf.data.columns for c in data_cols]): return
-    
-    for col in data_cols:
+def normalize_depth(sgf, summarize_depth=True,
+                    main_cols = ('depth','depth_min','depth_max'),
+                    data_cols = ("depth", "start_depth", "end_depth")):
+    for col in main_cols:
         if col not in sgf.main.columns:
             sgf.main[col] = np.nan
 
-
-
+    if sgf.data is None: return
+    if not len(sgf.data): return
+    if not np.any([c in sgf.data.columns for c in data_cols]): return
 
     if summarize_depth:
         last_depth = compute_maximum_depth(sgf, data_cols=data_cols)
