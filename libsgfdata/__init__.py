@@ -241,7 +241,7 @@ class SGFData(object):
     def positions(self):
         import geopandas as gpd
 
-        assert self.main
+        assert len(self.main)>0,'self.main DataFrame is either missing or is empty'
         
         projection = self.projection
         if projection is None: raise ValueError("SGF file has boreholes in multiple projections, or projection not specified.")
