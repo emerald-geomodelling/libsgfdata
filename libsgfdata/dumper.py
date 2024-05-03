@@ -37,7 +37,8 @@ def _dump_raw(sections, output_filename=None, *arg, **kw):
     elif output_filename is not None:
         _dump_raw_to_file(sections, output_filename, *arg, **kw)
     else:
-        raise NotImplementedError
+        raise ValueError(f'output_filename must a string or file handle, but you provided {type(output_filename)}.\n'
+                         f'{output_filename=}')
 
 def _dump_raw_to_file(sections, f, encoding="latin-1"):
     f = codecs.getwriter(encoding)(f, errors='ignore')
