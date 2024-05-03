@@ -230,6 +230,8 @@ class SGFData(object):
         
     @property
     def projection(self):
+        if self.main is None:
+            return None
         if "projection" not in self.main.columns:
             return None
         projections = self.main.projection.unique()
