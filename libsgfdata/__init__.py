@@ -51,6 +51,16 @@ def sections_to_geotech_set(sections, merge=False, id_col="investigation_point")
         
     return {"main": mains, "data": datas, "method": methods}
 
+def _infer_projection_from_dataframe(dictionary, column='projection'):
+    if 'main' not in dictionary:
+        return None
+    if "projection" not in dictionary['main'].columns:
+        return None
+    projections = dictionary['main'][column].unique()
+    if len(projections) != 1:
+        return None
+    return int(projections[0])
+
 def geotech_set_to_sections(geotech, id_col="investigation_point"):
     return [{"main": [row.to_dict() for idx, row
                       in geotech["main"][geotech["main"][id_col] == section_id].iterrows()]
@@ -72,24 +82,24 @@ class SGFData(object):
         encoding = kw.pop("encoding", None)
         validate = kw.pop("validate", False)
         self = object.__new__(cls)
-        self.model_dict = {}
+        self._model_dict = {}
         self.id_col = "investigation_point"
         if arg or kw:
             self.id_col = kw.pop("id_col", "investigation_point")
             if arg and isinstance(arg[0], dict):
-                self.model_dict = arg[0]
+                self._model_dict = arg[0]
             elif arg and isinstance(arg[0], list):
-                self.model_dict = sections_to_geotech_set(arg[0], id_col=self.id_col)
+                self._model_dict = sections_to_geotech_set(arg[0], id_col=self.id_col)
             elif arg and isinstance(arg[0], SGFData):
                 for block in ("main", "data", "method"):
                     blockdata = [
-                        argi.model_dict[block]
+                        argi._model_dict[block]
                         for argi in arg
-                        if block in argi.model_dict]
+                        if block in argi._model_dict]
                     if blockdata:
-                        self.model_dict[block] = pd.concat(blockdata).reset_index(drop=True)
+                        self._model_dict[block] = pd.concat(blockdata).reset_index(drop=True)
             else:
-                self.model_dict = sections_to_geotech_set(parse(*arg, encoding=encoding), id_col=self.id_col)
+                self._model_dict = sections_to_geotech_set(parse(*arg, encoding=encoding), id_col=self.id_col)
         if normalize:
             self = self.normalize(**kw)
         if validate:
@@ -147,14 +157,18 @@ class SGFData(object):
 
     def validate(self, **kw):
         _validate_function(self)
-    
+
+    @property
+    def model_dict(self):
+        return self._model_dict
+
     @property
     def sections(self):
         return geotech_set_to_sections(self.model_dict, id_col=self.id_col)
     
     @sections.setter
     def sections(self, sections):
-        self.model_dict = sections_to_geotech_set(sections, id_col=self.id_col)
+        self._model_dict = sections_to_geotech_set(sections, id_col=self.id_col)
             
     @property
     def main(self):
@@ -230,14 +244,7 @@ class SGFData(object):
         
     @property
     def projection(self):
-        if self.main is None:
-            return None
-        if "projection" not in self.main.columns:
-            return None
-        projections = self.main.projection.unique()
-        if len(projections) != 1:
-            return None
-        return int(projections[0])
+        return _infer_projection_from_dataframe(self._model_dict)
     
     @property
     def positions(self):
