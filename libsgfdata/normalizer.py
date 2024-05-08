@@ -49,7 +49,7 @@ def normalize_stop_code(sgf):
     sgf.main["stop_code"] = np.where(pd.isnull(sgf.main.stop_code), last_comment.last_comment, sgf.main.stop_code)
     
 def normalize_columns(sgf):
-    for blockname, block in sgf.model_dict.items():
+    for blockname, block in sgf._model_dict.items():
         if blockname not in metadata.block_metadata:
             continue
         normalization = metadata.block_metadata[blockname].loc[
