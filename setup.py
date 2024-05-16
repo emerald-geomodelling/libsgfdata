@@ -4,7 +4,7 @@ import setuptools
 
 setuptools.setup(
     name='libsgfdata',
-    version='0.0.21',
+    version='0.0.22',
     description='Parser for Swedish Geotechnical Society data format',
     long_description="""Parser for data from geotechnical field
     investigations in the data format specified in Report 3:2012E from
@@ -13,7 +13,7 @@ setuptools.setup(
     this report.""",
     long_description_content_type="text/markdown",
     author='Egil Moeller',
-    author_email='em@emeraldgeo.no',
+    author_email='em@emrld.no',
     url='https://github.com/emerald-geomodelling/libsgfdata',
     packages=setuptools.find_packages(),
     include_package_data=True,
