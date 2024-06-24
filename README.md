@@ -6,8 +6,8 @@ Society. This includes TOT and CPT files, used by e.g.
 [NADAG](http://geo.ngu.no/kart/nadag/).
 
 See [their report
-portal](http://www.sgf.net/web/page.aspx?refid=2678) for how to
-download this report.
+portal](https://svenskageotekniskaforeningen.se/kunskapsbank/sgf-rapporter/) for how to
+download this report. Here's a direct link to the report working as of 2024-06-24: [SGF Report 3:2012E](https://svenskageotekniskaforeningen.se/wp-content/uploads/Publikationer/SGF%20Rapporter/SGF%20data%20format.pdf)
 
 Additionally fields / extensions from [Geotech
 AB](https://static1.squarespace.com/static/565c5cc1e4b05079e4c0fcfb/t/587c984bbf629abac09d265f/1484560476906/6-SWE-CPT-LOG-v5.xx.pdf)
