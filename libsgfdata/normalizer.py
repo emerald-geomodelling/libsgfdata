@@ -5,10 +5,19 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
-def project(innproj, utproj, xinn, yinn):
+def _download_transformer_grids(innproj, utproj):
+    from pyproj.transformer import TransformerGroup
+    tg = TransformerGroup(innproj, utproj)
+    n_unavailable = len(tg.unavailable_operations)
+    if n_unavailable>0:
+        logger.info(f'Downloading {n_unavailable} unavailable transformer grid(s) to improve accuracy...')
+        tg.download_grids(verbose=True)
+
+def project(innproj, utproj, xinn, yinn, zinn=None):
+    _download_transformer_grids(innproj, utproj)
     import pyproj
     return pyproj.Transformer.from_crs(
-        int(innproj), int(utproj), always_xy=True).transform(xinn, yinn)
+        int(innproj), int(utproj), always_xy=True).transform(xinn, yinn, zinn)
 
 def normalize_coordinates(sgf, projection=None, **kw):
     if "projection" not in sgf.main.columns:
@@ -21,12 +30,27 @@ def normalize_coordinates(sgf, projection=None, **kw):
         sgf.main["projection_orig"] = sgf.main.projection
         sgf.main["x_orig"] = sgf.main.x_coordinate
         sgf.main["y_orig"] = sgf.main.y_coordinate
+        sgf.main["z_orig"] = sgf.main.z_coordinate
 
     # FIXME: Don't reproject unnecessarily
         
     def reproject(df):
         src = df.projection_orig.iloc[0]
-        df["x_coordinate"], df["y_coordinate"] = project(src, projection, df["x_orig"].values, df["y_orig"].values)
+
+        zz = None
+        if "z_orig" in df.columns:
+            zz=df["z_orig"].values
+
+        if ('z_coordinate' in df.columns) and ('z_orig' not in df.columns):
+            msg = f'While attempting to reproject coordinates, the z_coordinate was present but z_orig was missing. You ' \
+                  f'might be handling an older dataset. Are you sure that the coordinate system stated in ' \
+                  f'sgf.main.projection_orig reflects the vertical datum of the z_coordinate values? If so, try copying ' \
+                  f'values from the z_coordinate column to a new "z_orig" column.'
+
+        df["x_coordinate"], df["y_coordinate"],z_new = project(src, projection, df["x_orig"].values, df["y_orig"].values, zz)
+
+        if zz is not None:  df["z_coordinate"]=z_new
+
         df["x_web"], df["y_web"] = project(src, 3857, df["x_orig"].values, df["y_orig"].values)
         df["lon"], df["lat"] = project(src, 4326, df["x_orig"].values, df["y_orig"].values)
         return df
