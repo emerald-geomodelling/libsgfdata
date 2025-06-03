@@ -30,7 +30,8 @@ def normalize_coordinates(sgf, projection=None, **kw):
         sgf.main["projection_orig"] = sgf.main.projection
         sgf.main["x_orig"] = sgf.main.x_coordinate
         sgf.main["y_orig"] = sgf.main.y_coordinate
-        sgf.main["z_orig"] = sgf.main.z_coordinate
+        if 'z_coordinate' in sgf.main.columns:
+            sgf.main["z_orig"] = sgf.main.z_coordinate
 
     # FIXME: Don't reproject unnecessarily
         
@@ -47,7 +48,10 @@ def normalize_coordinates(sgf, projection=None, **kw):
                   f'sgf.main.projection_orig reflects the vertical datum of the z_coordinate values? If so, try copying ' \
                   f'values from the z_coordinate column to a new "z_orig" column.'
 
-        df["x_coordinate"], df["y_coordinate"],z_new = project(src, projection, df["x_orig"].values, df["y_orig"].values, zz)
+        outputs = project(src, projection, df["x_orig"].values, df["y_orig"].values, zz)
+        df["x_coordinate"], df["y_coordinate"] = (outputs[0], outputs[1])
+        if len(outputs)>2:
+            z_new = outputs[2]
 
         if zz is not None:  df["z_coordinate"]=z_new
 
