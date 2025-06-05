@@ -1,4 +1,6 @@
 import logging
+import warnings
+
 from . import metadata
 import pandas as pd
 import numpy as np
@@ -35,8 +37,40 @@ def normalize_coordinates(sgf, projection=None, **kw):
 
     # FIXME: Don't reproject unnecessarily
         
-    def reproject(df):
+    def reproject_to_all_crs(df, projection):
+
         src = df.projection_orig.iloc[0]
+        outputs_df = reproject_coords_orig_to_new_crs(df, src, projection)
+        for col in outputs_df.columns:
+            df[col] = outputs_df[col].values
+
+
+        df["x_web"], df["y_web"] = project(src, 3857, df["x_orig"].values, df["y_orig"].values)
+        df["lon"], df["lat"] = project(src, 4326, df["x_orig"].values, df["y_orig"].values)
+        return df
+
+    def validate_stored_original_and_new_coordinates_match_within_tolerance(sgf, coordinate_tolerance = 1e-4, **kw):
+        coords_new=sgf.main[['x_coordinate','y_coordinate']].copy()
+        if 'z_coordinate' in sgf.main.columns:
+            coords_new['z_coordinate'] = sgf.main['z_coordinate'].copy()
+
+        coords_reprojected_from_orig = sgf.main.groupby(["projection_orig","projection"], group_keys=False).apply( lambda x: reproject_coords_orig_to_new_crs(x, x.projection_orig.iloc[0], x.projection.iloc[0]))
+
+        if coords_reprojected_from_orig.shape[1]!=coords_new.shape[1]:
+            msg = f'one set of stored coordinates is missing a z coordinate, so only x-y coordinates will be verified. ' \
+                  f'\noriginal coordinates: {coords_reprojected_from_orig.shape[1]} dimensions\n ' \
+                  f'reprojected coordinates: {coords_new.shape[1]}dimensions\n'
+            warnings.warn(msg)
+
+        differences = coords_new-coords_reprojected_from_orig
+        mask_exceed_tol = np.abs(differences)>coordinate_tolerance
+        if np.any(mask_exceed_tol):
+            msg = f'The original (x_orig, y_orig, z_orig) and projected (x_coordinate, y_coordinate, z_coordinate) coordinates stored in this dataset differ beyond tolerace of {coordinate_tolerance} when converted to the same CRS. ' \
+                  f'Coordinate values were likely changed in one set but not the other. \n '\
+                  f'{mask_exceed_tol.value_counts().sort_index()} \nsummary of the differences \n {differences.describe()}\n '
+            raise ValueError(msg)
+
+    def reproject_coords_orig_to_new_crs(df, src, projection):
 
         zz = None
         if "z_orig" in df.columns:
@@ -47,19 +81,17 @@ def normalize_coordinates(sgf, projection=None, **kw):
                   f'might be handling an older dataset. Are you sure that the coordinate system stated in ' \
                   f'sgf.main.projection_orig reflects the vertical datum of the z_coordinate values? If so, try copying ' \
                   f'values from the z_coordinate column to a new "z_orig" column.'
+            warnings.warn(msg)
+        outputs_dict = {}
+        outputs_tuple = project(src, projection, df["x_orig"].values, df["y_orig"].values, zz)
+        outputs_dict["x_coordinate"], outputs_dict["y_coordinate"] = (outputs_tuple[0], outputs_tuple[1])
+        if len(outputs_tuple) > 2:
+            z_new = outputs_tuple[2]
+            outputs_dict["z_coordinate"] = z_new
+        return pd.DataFrame(outputs_dict, index=df.index)
 
-        outputs = project(src, projection, df["x_orig"].values, df["y_orig"].values, zz)
-        df["x_coordinate"], df["y_coordinate"] = (outputs[0], outputs[1])
-        if len(outputs)>2:
-            z_new = outputs[2]
-
-        if zz is not None:  df["z_coordinate"]=z_new
-
-        df["x_web"], df["y_web"] = project(src, 3857, df["x_orig"].values, df["y_orig"].values)
-        df["lon"], df["lat"] = project(src, 4326, df["x_orig"].values, df["y_orig"].values)
-        return df
-        
-    sgf.main = sgf.main.groupby("projection_orig", group_keys=False).apply(reproject)
+    validate_stored_original_and_new_coordinates_match_within_tolerance(sgf, **kw)
+    sgf.main = sgf.main.groupby("projection_orig", group_keys=False).apply(lambda x: reproject_to_all_crs(x, projection))
     sgf.main["projection"] = projection
 
 def normalize_stop_code(sgf):
