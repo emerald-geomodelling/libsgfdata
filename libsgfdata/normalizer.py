@@ -74,8 +74,14 @@ def normalize_coordinates(sgf, projection=None, **kw):
 
         zz = None
         if "z_orig" in df.columns:
-            zz=df["z_orig"].values
-
+            if np.sum(df["z_orig"].isna()) == 0:
+                zz = df["z_orig"].values
+            elif np.sum(df["z_orig"].isna()) == len(df):
+                zz = None
+            else:
+                msg = f'Found a mix of NaN and non-NaN values in "z_orig" column. The function normalize_coordinates is ' \
+                      f'not currently configured to handle a mix of values. "z_orig" must be all NaN or all not NaN.'
+                raise ValueError(msg)
         if ('z_coordinate' in df.columns) and ('z_orig' not in df.columns):
             msg = f'While attempting to reproject coordinates, the z_coordinate was present but z_orig was missing. You ' \
                   f'might be handling an older dataset. Are you sure that the coordinate system stated in ' \
