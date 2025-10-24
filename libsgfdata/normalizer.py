@@ -74,14 +74,19 @@ def normalize_coordinates(sgf, projection=None, **kw):
 
         zz = None
         if "z_orig" in df.columns:
-            if np.sum(df["z_orig"].isna()) == 0:
+            if np.sum(df["z_orig"].isna()) == 0 or 'z_coordinate' not in df.columns:
                 zz = df["z_orig"].values
             elif np.sum(df["z_orig"].isna()) == len(df):
                 zz = None
             else:
-                msg = f'Found a mix of NaN and non-NaN values in "z_orig" column. The function normalize_coordinates is ' \
-                      f'not currently configured to handle a mix of values. "z_orig" must be all NaN or all not NaN.'
-                raise ValueError(msg)
+                if 'z_coordinate' in df.columns:
+                    mask_z_orig_will_overwrite = np.logical_and(pd.notnull(df['z_coordinate']), pd.isnull(df['z_orig']),)
+                    if np.any(mask_z_orig_will_overwrite):
+
+                        msg = f'Found {np.sum(mask_z_orig_will_overwrite)} cases where "z_coordinate" is defined but ' \
+                              f'"z_orig" is null, which will cause the z_coordinate to be overwritten'
+                        raise ValueError(msg)
+                zz = df["z_orig"].values
         if ('z_coordinate' in df.columns) and ('z_orig' not in df.columns):
             msg = f'While attempting to reproject coordinates, the z_coordinate was present but z_orig was missing. You ' \
                   f'might be handling an older dataset. Are you sure that the coordinate system stated in ' \
@@ -105,13 +110,13 @@ def normalize_stop_code(sgf):
     if "comments" not in sgf.data.columns: return
     if "stop_code" not in sgf.main.columns:
         sgf.main["stop_code"] = "no_comment"
-    if ("title" in sgf.data.columns) & ("investigation_point" not in sgf.data.columns):
+    if ("title" in sgf.data.columns) & (sgf.id_col not in sgf.data.columns):
         sgf.id_col = "title"
         print("investigation_point not in sgf.data.columns, setting sgf.id_col as 'title'")
 
-    last_comment = sgf.main[["investigation_point"]].merge(
+    last_comment = sgf.main[[sgf.id_col]].merge(
         sgf.data.groupby(sgf.id_col).comments.last().rename("last_comment"),
-        left_on="investigation_point", right_index=True, how="left")
+        left_on=sgf.id_col, right_index=True, how="left")
     sgf.main["stop_code"] = np.where(pd.isnull(sgf.main.stop_code), last_comment.last_comment, sgf.main.stop_code)
     
 def normalize_columns(sgf):
