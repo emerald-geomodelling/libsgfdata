@@ -68,7 +68,7 @@ def normalize_coordinates(sgf, projection=None, **kw):
             msg = f'The original (x_orig, y_orig, z_orig) and projected (x_coordinate, y_coordinate, z_coordinate) coordinates stored in this dataset differ beyond tolerace of {coordinate_tolerance} when converted to the same CRS. ' \
                   f'Coordinate values were likely changed in one set but not the other. \n '\
                   f'{mask_exceed_tol.value_counts().sort_index()} \nsummary of the differences \n {differences.describe()}\n '
-            raise ValueError(msg)
+            warnings.warn(msg)
 
     def reproject_coords_orig_to_new_crs(df, src, projection):
 
