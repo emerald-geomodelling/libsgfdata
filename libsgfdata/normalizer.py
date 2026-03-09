@@ -85,7 +85,7 @@ def normalize_coordinates(sgf, projection=None, **kw):
 
                         msg = f'Found {np.sum(mask_z_orig_will_overwrite)} cases where "z_coordinate" is defined but ' \
                               f'"z_orig" is null, which will cause the z_coordinate to be overwritten'
-                        raise ValueError(msg)
+                        warnings.warn(msg)
                 zz = df["z_orig"].values
         if ('z_coordinate' in df.columns) and ('z_orig' not in df.columns):
             msg = f'While attempting to reproject coordinates, the z_coordinate was present but z_orig was missing. You ' \
