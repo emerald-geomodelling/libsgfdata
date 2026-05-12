@@ -71,35 +71,119 @@ def normalize_coordinates(sgf, projection=None, **kw):
             warnings.warn(msg)
 
     def reproject_coords_orig_to_new_crs(df, src, projection):
+        # Reproject x_orig/y_orig (and z_orig where applicable) to the target CRS.
+        # Rows are split into four subsets based on whether z_orig and z_coordinate are NaN,
+        # because pyproj's 3D transform poisons x/y outputs with NaN whenever the input z is NaN.
+        # Output columns mirror what the caller will overwrite via `df[col] = outputs_df[col].values`,
+        # so we include z_coordinate only when it (or z_orig) was in the input — matching the
+        # legacy behavior used by validate_stored_original_and_new_coordinates_match_within_tolerance.
+        has_z_orig_col = "z_orig" in df.columns
+        has_z_coord_col = "z_coordinate" in df.columns
 
-        zz = None
-        if "z_orig" in df.columns:
-            if np.sum(df["z_orig"].isna()) == 0 or 'z_coordinate' not in df.columns:
-                zz = df["z_orig"].values
-            elif np.sum(df["z_orig"].isna()) == len(df):
-                zz = None
-            else:
-                if 'z_coordinate' in df.columns:
-                    mask_z_orig_will_overwrite = np.logical_and(pd.notnull(df['z_coordinate']), pd.isnull(df['z_orig']),)
-                    if np.any(mask_z_orig_will_overwrite):
+        if not has_z_orig_col and has_z_coord_col:
+            warnings.warn(
+                f'While attempting to reproject coordinates, the z_coordinate was present but '
+                f'z_orig was missing. You might be handling an older dataset. Are you sure that '
+                f'the coordinate system stated in sgf.main.projection_orig reflects the vertical '
+                f'datum of the z_coordinate values? If so, try copying values from the '
+                f'z_coordinate column to a new "z_orig" column.'
+            )
 
-                        msg = f'Found {np.sum(mask_z_orig_will_overwrite)} cases where "z_coordinate" is defined but ' \
-                              f'"z_orig" is null, which will cause the z_coordinate to be overwritten'
-                        warnings.warn(msg)
-                zz = df["z_orig"].values
-        if ('z_coordinate' in df.columns) and ('z_orig' not in df.columns):
-            msg = f'While attempting to reproject coordinates, the z_coordinate was present but z_orig was missing. You ' \
-                  f'might be handling an older dataset. Are you sure that the coordinate system stated in ' \
-                  f'sgf.main.projection_orig reflects the vertical datum of the z_coordinate values? If so, try copying ' \
-                  f'values from the z_coordinate column to a new "z_orig" column.'
-            warnings.warn(msg)
-        outputs_dict = {}
-        outputs_tuple = project(src, projection, df["x_orig"].values, df["y_orig"].values, zz)
-        outputs_dict["x_coordinate"], outputs_dict["y_coordinate"] = (outputs_tuple[0], outputs_tuple[1])
-        if len(outputs_tuple) > 2:
-            z_new = outputs_tuple[2]
-            outputs_dict["z_coordinate"] = z_new
-        return pd.DataFrame(outputs_dict, index=df.index)
+        z_orig_isna = df["z_orig"].isna() if has_z_orig_col else pd.Series(True, index=df.index)
+        z_coord_isna = df["z_coordinate"].isna() if has_z_coord_col else pd.Series(True, index=df.index)
+
+        out_cols = ["x_coordinate", "y_coordinate"]
+        if has_z_coord_col:
+            out_cols.append("z_coordinate")
+        out = pd.DataFrame(np.nan, index=df.index, columns=out_cols, dtype=float)
+
+        def _reproject_2d(mask):
+            if not mask.any():
+                return
+            xs, ys = project(src, projection,
+                             df.loc[mask, "x_orig"].values,
+                             df.loc[mask, "y_orig"].values)
+            out.loc[mask, "x_coordinate"] = xs
+            out.loc[mask, "y_coordinate"] = ys
+
+        def _reproject_3d(mask):
+            xs, ys, zs = project(src, projection,
+                                 df.loc[mask, "x_orig"].values,
+                                 df.loc[mask, "y_orig"].values,
+                                 df.loc[mask, "z_orig"].values)
+            return xs, ys, zs
+
+        # Case A: z_orig NaN AND z_coordinate NaN (or columns missing).
+        # 2D reproject for x/y; z_coordinate stays NaN.
+        mask_a = z_orig_isna & z_coord_isna
+        _reproject_2d(mask_a)
+
+        # Case B: z_orig present, z_coordinate NaN.
+        # 3D reproject and write the converted z. If conversion produces non-finite z
+        # (e.g. missing vertical grid), redo x/y in 2D, copy z_orig as z_coordinate, and warn.
+        mask_b = (~z_orig_isna) & z_coord_isna
+        if mask_b.any():
+            xs, ys, zs = _reproject_3d(mask_b)
+            ok = np.isfinite(zs)
+            b_idx = df.index[mask_b]
+            if ok.any():
+                ok_idx = b_idx[ok]
+                out.loc[ok_idx, "x_coordinate"] = xs[ok]
+                out.loc[ok_idx, "y_coordinate"] = ys[ok]
+                if has_z_coord_col:
+                    out.loc[ok_idx, "z_coordinate"] = zs[ok]
+            if (~ok).any():
+                fail_idx = b_idx[~ok]
+                warnings.warn(
+                    f'{(~ok).sum()} rows: z conversion from z_orig produced non-finite '
+                    f'values (likely missing vertical-datum grid); copying z_orig to '
+                    f'z_coordinate verbatim and reprojecting x/y in 2D.'
+                )
+                xs2, ys2 = project(src, projection,
+                                   df.loc[fail_idx, "x_orig"].values,
+                                   df.loc[fail_idx, "y_orig"].values)
+                out.loc[fail_idx, "x_coordinate"] = xs2
+                out.loc[fail_idx, "y_coordinate"] = ys2
+                if has_z_coord_col:
+                    out.loc[fail_idx, "z_coordinate"] = df.loc[fail_idx, "z_orig"].values
+
+        # Case C: z_orig NaN, z_coordinate present.
+        # Retain existing z_coordinate as-is; reproject x/y in 2D; warn (we have no source
+        # of truth for the vertical reprojection).
+        mask_c = z_orig_isna & (~z_coord_isna)
+        if mask_c.any():
+            warnings.warn(
+                f'{mask_c.sum()} rows: z_coordinate is defined but z_orig is null; '
+                f'retaining stored z_coordinate without vertical reprojection.'
+            )
+            _reproject_2d(mask_c)
+            if has_z_coord_col:
+                out.loc[mask_c, "z_coordinate"] = df.loc[mask_c, "z_coordinate"].values
+
+        # Case D: both z_orig and z_coordinate present.
+        # 3D reproject, write the converted value, and warn if it differs from the stored
+        # z_coordinate by more than 1e-3 units (likely indicates one of the two columns
+        # was edited without updating the other).
+        mask_d = (~z_orig_isna) & (~z_coord_isna)
+        if mask_d.any():
+            xs, ys, zs = _reproject_3d(mask_d)
+            existing = df.loc[mask_d, "z_coordinate"].values.astype(float)
+            with np.errstate(invalid="ignore"):
+                diff = np.abs(zs - existing)
+                bad = diff > 1e-3
+            if np.any(bad):
+                warnings.warn(
+                    f'{int(bad.sum())} rows: reprojected z (from z_orig) differs from '
+                    f'stored z_coordinate by more than 1e-3 (max diff='
+                    f'{float(np.nanmax(diff)):.6g}). z_coordinate may have been edited '
+                    f'independently of z_orig.'
+                )
+            out.loc[mask_d, "x_coordinate"] = xs
+            out.loc[mask_d, "y_coordinate"] = ys
+            if has_z_coord_col:
+                out.loc[mask_d, "z_coordinate"] = zs
+
+        return out
 
     validate_stored_original_and_new_coordinates_match_within_tolerance(sgf, **kw)
     sgf.main = sgf.main.groupby("projection_orig", group_keys=False).apply(lambda x: reproject_to_all_crs(x, projection))
