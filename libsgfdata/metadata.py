@@ -1,5 +1,5 @@
 import re
-import pkg_resources
+from importlib.resources import files
 import pandas as pd
 import numpy as np
 import slugify
@@ -18,19 +18,19 @@ na_values = ['', '#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', '-NaN', '-nan
 def _read_csv(f):
     return pd.read_csv(f, na_values=na_values, keep_default_na=False).set_index("code").sort_index()
 
-with pkg_resources.resource_stream("libsgfdata", "method.csv") as f:
+with files("libsgfdata").joinpath("method.csv").open("rb") as f:
     method = _read_csv(f)
-with pkg_resources.resource_stream("libsgfdata", "main.csv") as f:
+with files("libsgfdata").joinpath("main.csv").open("rb") as f:
     main = _read_csv(f)
-with pkg_resources.resource_stream("libsgfdata", "data.csv") as f:
+with files("libsgfdata").joinpath("data.csv").open("rb") as f:
     data = _read_csv(f)
 block_metadata = {"method": method, "main": main, "data": data}
     
-with pkg_resources.resource_stream("libsgfdata", "methods.csv") as f:
+with files("libsgfdata").joinpath("methods.csv").open("rb") as f:
     methods = _read_csv(f)
-with pkg_resources.resource_stream("libsgfdata", "comments.csv") as f:
+with files("libsgfdata").joinpath("comments.csv").open("rb") as f:
     comments = _read_csv(f)
-with pkg_resources.resource_stream("libsgfdata", "data-flags.csv") as f:
+with files("libsgfdata").joinpath("data-flags.csv").open("rb") as f:
     data_flags = _read_csv(f)
 
 
