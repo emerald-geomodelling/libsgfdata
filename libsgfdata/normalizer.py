@@ -7,6 +7,25 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
+def _apply_by_group(df, by, func):
+    """Apply ``func(group_df, key)`` per group of ``df.groupby(by)`` and concat,
+    preserving the original row order.
+
+    A drop-in replacement for ``df.groupby(by, group_keys=False).apply(func)`` that
+    behaves identically across pandas 1.x / 2.x / 3.x: the grouping columns stay
+    present in ``group_df`` (so callers may still read them) and no
+    ``include_groups`` FutureWarning is emitted. Rows whose grouping key is NaN are
+    dropped, matching groupby's default ``dropna=True``. Assumes ``df`` has a unique
+    index (true for ``sgf.main``).
+    """
+    grouped = df.groupby(by)
+    parts = [func(df.iloc[pos], key) for key, pos in grouped.indices.items()]
+    if not parts:
+        return df.iloc[0:0]
+    result = pd.concat(parts)
+    kept = set(result.index)
+    return result.reindex([i for i in df.index if i in kept])
+
 def _download_transformer_grids(innproj, utproj):
     from pyproj.transformer import TransformerGroup
     tg = TransformerGroup(innproj, utproj)
@@ -54,7 +73,9 @@ def normalize_coordinates(sgf, projection=None, **kw):
         if 'z_coordinate' in sgf.main.columns:
             coords_new['z_coordinate'] = sgf.main['z_coordinate'].copy()
 
-        coords_reprojected_from_orig = sgf.main.groupby(["projection_orig","projection"], group_keys=False).apply( lambda x: reproject_coords_orig_to_new_crs(x, x.projection_orig.iloc[0], x.projection.iloc[0]))
+        coords_reprojected_from_orig = _apply_by_group(
+            sgf.main, ["projection_orig", "projection"],
+            lambda x, key: reproject_coords_orig_to_new_crs(x, x.projection_orig.iloc[0], x.projection.iloc[0]))
 
         if coords_reprojected_from_orig.shape[1]!=coords_new.shape[1]:
             msg = f'one set of stored coordinates is missing a z coordinate, so only x-y coordinates will be verified. ' \
@@ -186,7 +207,9 @@ def normalize_coordinates(sgf, projection=None, **kw):
         return out
 
     validate_stored_original_and_new_coordinates_match_within_tolerance(sgf, **kw)
-    sgf.main = sgf.main.groupby("projection_orig", group_keys=False).apply(lambda x: reproject_to_all_crs(x, projection))
+    sgf.main = _apply_by_group(
+        sgf.main, "projection_orig",
+        lambda x, key: reproject_to_all_crs(x, projection))
     sgf.main["projection"] = projection
 
 def normalize_stop_code(sgf):
