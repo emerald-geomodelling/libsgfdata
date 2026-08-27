@@ -22,7 +22,7 @@ class depth_to_material(object):
 
             materials = borehole_data[material_column].apply(find_material)
 
-            depth_bedrock = np.NaN
+            depth_bedrock = np.nan
             for cls in depth_to_material:
                 if np.isnan(depth_bedrock):
                     depth_bedrock = borehole_data.loc[
