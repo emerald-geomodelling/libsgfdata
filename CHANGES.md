@@ -12,6 +12,7 @@
   `_apply_by_group` helper that keeps the grouping columns available and
   preserves original row order, working across pandas 1.x/2.x/3.x without the
   `include_groups` keyword.
+- correct numpy spellings for version 2, including `np.NaN`-> `np.nan`
 
 ### Changed
 - Require `pandas>=2`.
